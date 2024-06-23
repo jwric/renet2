@@ -5,8 +5,9 @@ use h3_quinn::Connection as H3QuinnConnection;
 use h3_webtransport::server::WebTransportSession;
 use http::{uri::Uri, Method};
 use log::{debug, error, trace};
+use quinn::crypto::rustls::QuicServerConfig;
 use quinn::{EndpointConfig, TokioRuntime};
-use rustls::{Certificate, PrivateKey};
+use rustls::pki_types::{CertificateDer, PrivateKeyDer};
 use tokio::{sync::mpsc, task::AbortHandle};
 
 use std::collections::HashMap;
@@ -31,7 +32,7 @@ use crate::transport::ServerCertHash;
 use super::{generate_self_signed_certificate_opinionated, get_server_cert_hash};
 
 /// Configuration for setting up a [`WebTransportServer`].
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct WebTransportServerConfig {
     /// The certificate for this server.
     ///
@@ -39,9 +40,9 @@ pub struct WebTransportServerConfig {
     /// This is relevant for clients that use [`ServerCertHash`], which can only connect to certificates with an
     /// expiration under
     /// [two weeks](https://developer.mozilla.org/en-US/docs/Web/API/WebTransport/WebTransport#servercertificatehashes).
-    pub cert: Certificate,
+    pub cert: CertificateDer<'static>,
     /// The private key for this server.
-    pub key: PrivateKey,
+    pub key: PrivateKeyDer<'static>,
     /// Socket address to listen on.
     ///
     /// It is recommended to use a pre-defined IP and a wildcard port.
@@ -55,7 +56,7 @@ pub struct WebTransportServerConfig {
     //todo: client keep-alive timeout
 }
 
-impl WebTransportServerConfig {
+impl WebTransportServerConfig  {
     /// Makes a new config with a self-signed [`Certificate`].
     ///
     /// Returns the [`ServerCertHash`] of the certificate, which can be used to set up clients via
@@ -73,6 +74,17 @@ impl WebTransportServerConfig {
         };
 
         (config, hash)
+    }
+}
+
+impl Clone for WebTransportServerConfig {
+    fn clone(&self) -> Self {
+        Self {
+            cert: self.cert.clone(),
+            key: self.key.clone_key(),
+            listen: self.listen,
+            max_clients: self.max_clients,
+        }
     }
 }
 
@@ -175,6 +187,9 @@ impl WebTransportServer {
     /// - Errors if unable to bind to the [`WebTransportServerConfig::listen`] address, which can happen if your
     ///   machine is using all ports on a pre-defined IP address.
     pub fn new(config: WebTransportServerConfig, handle: tokio::runtime::Handle) -> Result<Self, Error> {
+
+        rustls::crypto::ring::default_provider().install_default().expect("Failed to install rustls crypto provider");
+
         let target_addr = config.listen;
         let max_clients = config.max_clients;
         let server_config = Self::create_server_config(config)?;
@@ -287,13 +302,11 @@ impl WebTransportServer {
         // That would be useful for long-lived servers whose clients are using ServerCertHash, since then you could
         // specify many certificates (for the expected lifetime of the server) or even inject fresh ones via atomics
         // and channels.
-        let mut tls_config = rustls::ServerConfig::builder()
-            .with_safe_default_cipher_suites()
-            .with_safe_default_kx_groups()
-            .with_protocol_versions(&[&rustls::version::TLS13])
-            .unwrap()
+        let mut tls_config: rustls::ServerConfig = 
+            rustls::ServerConfig::builder_with_protocol_versions(&[&rustls::version::TLS13])
             .with_no_client_auth()
-            .with_single_cert(vec![config.cert], config.key)?;
+            .with_single_cert(vec![config.cert.clone()], config.key.clone_key())
+            .unwrap();
 
         tls_config.max_early_data_size = u32::MAX;
         // We set the ALPN protocols to h3 as first, so that the browser will use the newest HTTP/3 draft and as fallback
@@ -307,7 +320,7 @@ impl WebTransportServer {
         ];
         tls_config.alpn_protocols = alpn;
 
-        let mut server_config: quinn::ServerConfig = quinn::ServerConfig::with_crypto(Arc::new(tls_config));
+        let mut server_config: quinn::ServerConfig = quinn::ServerConfig::with_crypto(Arc::new(QuicServerConfig::try_from(tls_config).unwrap()));
         let mut transport_config = quinn::TransportConfig::default();
         transport_config.keep_alive_interval(Some(Duration::from_secs(2)));
         server_config.transport = Arc::new(transport_config);
