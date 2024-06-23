@@ -11,7 +11,7 @@ use crate::transport::ServerCertHash;
 ///
 /// The [`PrivateKey`] should not be publicized.
 pub fn generate_self_signed_certificate(params: CertificateParams) -> Result<(CertificateDer<'static>, PrivateKeyDer<'static>), rcgen::Error> {
-    let key_pair = KeyPair::generate()?;
+    let key_pair = KeyPair::generate_for(&PKCS_ECDSA_P256_SHA256)?;
     let rc_certificate = params.self_signed(&key_pair)?;
 
     let certificate = rc_certificate.der().clone();
@@ -44,7 +44,6 @@ pub fn generate_self_signed_certificate_opinionated(
         .collect::<Vec<_>>();
 
     let mut params = CertificateParams::default(); //the params is `non_exhaustive` so we need to default construct
-    // params.alg = &PKCS_ECDSA_P256_SHA256;
     params.not_before = not_before;
     params.not_after = not_after;
     params.serial_number = None;
@@ -56,7 +55,6 @@ pub fn generate_self_signed_certificate_opinionated(
     params.name_constraints = None;
     params.crl_distribution_points = Vec::new();
     params.custom_extensions = Vec::new();
-    // params.key_pair = None;
     params.use_authority_key_identifier_extension = false;
     params.key_identifier_method = KeyIdMethod::Sha256;
 
