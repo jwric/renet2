@@ -12,4 +12,7 @@ members = [
     "renet2_steam",
     "renetcode2",
 ]
+exclude = [
+    "examples/echo_client_wt",
+]
 resolver = "2"
