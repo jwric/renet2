@@ -2,6 +2,9 @@
 
 ## WIP
 
+
+## 0.0.4 - 06/26/2024
+
 - Update `WebTransportClientConfig` to use `WebServerDestination`, which allows connecting to a WebTransport server via URL (useful when your server has certs for a domain name).
 - Update `h3` dependencies for the WebTransport server in the `renet2` crate to depend on the `h3-v0.0.4` tag.
 - Implement https://github.com/lucaspoffo/renet/pull/158.

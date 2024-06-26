@@ -1,6 +1,6 @@
 [package]
 name = "bevy_replicon_renet2"
-version = "0.0.4"
+version = "0.0.5"
 authors = [
   "Hennadii Chernyshchyk <genaloner@gmail.com>",
   "koe <ukoe@protonmail.com>",
@@ -19,13 +19,13 @@ repository = "https://github.com/UkoeHB/renet2"
 
 [dependencies]
 bevy_replicon = { version = "0.26" }
-bevy_renet2 = { path = "../bevy_renet2", version = "0.0.3", default-features = false }
+bevy_renet2 = { path = "../bevy_renet2", version = "0.0.4", default-features = false }
 bevy = { version = "0.13", default-features = false }
 
 [dev-dependencies]
 serde = "1.0"
 clap = { version = "4.1", features = ["derive"] }
-bevy_renet2 = { path = "../bevy_renet2", version = "0.0.3", features = ["native_transport"] }
+bevy_renet2 = { path = "../bevy_renet2", version = "0.0.4", features = ["native_transport"] }
 bevy = { version = "0.13", default-features = false, features = [
   "bevy_text",
   "bevy_ui",
