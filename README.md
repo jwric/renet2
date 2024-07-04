@@ -22,6 +22,13 @@ Provides the following features:
     - The underlying data transport/socket can be customized. Both unencrypted (e.g. UDP) and encrypted (e.g. WebTransport) data transports are supported.
 - Built-in UDP sockets, in-memory sockets, and WebTransport sockets for flexible, cross-platform networking using the `netcode` protocol.
 
+> [!WARNING]
+> The `demo_bevy` subcrate is disabled while waiting for dependencies to update to Bevy v0.14 (`bevy_egui` and `smooth-bevy-camera`).
+
+## Differences from `renet`
+
+### `netcode` protocol changes
+
 Renet2 extends the original [netcode](https://github.com/networkprotocol/netcode) protocol with:
 
 - Optional packet encryption. This supports data transports that do their own encryption.
@@ -29,8 +36,9 @@ Renet2 extends the original [netcode](https://github.com/networkprotocol/netcode
 
 See `renetcode2/NETCODE_EXTENSIONS.md`.
 
-> [!NOTICE]
-> The `demo_bevy` subcrate is disabled while waiting for dependencies to update to Bevy v0.14 (`bevy_egui` and `smooth-bevy-camera`).
+### Features
+
+- Includes built-in data transports: `UdpSockets`, memory channels, WebTransport.
 
 
 ## Channels
@@ -215,3 +223,9 @@ Checkout [renet2_steam](https://github.com/UkoeHb/renet2/tree/master/renet2_stea
 Checkout [renet2_visualizer](https://github.com/UkoeHb/renet2/tree/master/renet2_visualizer) for an egui plugin to plot metrics data from renet clients and servers:
 
 https://user-images.githubusercontent.com/35241085/175834010-b1eafd77-7ea2-47dc-a915-a399099c7a99.mp4
+
+## Bevy compatibility
+
+| bevy | renet2 repository |
+|------|-------------------|
+| 0.14 | tag 0.0.5         |
