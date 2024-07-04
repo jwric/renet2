@@ -1,6 +1,6 @@
 use std::time::SystemTime;
 
-use bevy::{app::AppExit, prelude::*};
+use bevy::prelude::*;
 use bevy_renet2::{
     transport::{NetcodeClientPlugin, NetcodeServerPlugin},
     RenetClientPlugin, RenetServerPlugin,
@@ -105,7 +105,7 @@ fn create_and_connect_apps(num_clients: usize) -> (App, Vec<App>) {
     for socket in client_sockets.drain(..) {
         let mut client = create_client_app(socket);
 
-        while !client.world.resource::<RenetClient>().is_connected() {
+        while !client.world().resource::<RenetClient>().is_connected() {
             server.update();
             client.update();
         }
@@ -117,11 +117,11 @@ fn create_and_connect_apps(num_clients: usize) -> (App, Vec<App>) {
 }
 
 fn client_received(client: &App) -> Vec<Vec<u8>> {
-    client.world.resource::<ClientReceived>().0.clone()
+    client.world().resource::<ClientReceived>().0.clone()
 }
 
 fn server_received(server: &App) -> Vec<(u64, Vec<u8>)> {
-    let mut received = server.world.resource::<ServerReceived>().0.clone();
+    let mut received = server.world().resource::<ServerReceived>().0.clone();
     received.sort_by_key(|&(client_id, _)| client_id);
     received
 }
@@ -140,7 +140,7 @@ fn simple_transport() {
     let (mut server, mut clients) = create_and_connect_apps(1);
     let mut client = clients.pop().unwrap();
 
-    assert!(client.world.resource::<NetcodeClientTransport>().is_connected());
+    assert!(client.world().resource::<NetcodeClientTransport>().is_connected());
 
     server.add_systems(Update, |mut server: ResMut<RenetServer>| {
         server.broadcast_message(DefaultChannel::ReliableOrdered, vec![1]);
@@ -281,19 +281,19 @@ fn disconnect_client() {
     let mut client = clients.pop().unwrap();
 
     server.update();
-    assert_eq!(server.world.resource::<RenetServer>().clients_id(), vec![ClientId::from_raw(0)]);
-    assert!(client.world.resource::<NetcodeClientTransport>().is_connected());
+    assert_eq!(server.world().resource::<RenetServer>().clients_id(), vec![ClientId::from_raw(0)]);
+    assert!(client.world().resource::<NetcodeClientTransport>().is_connected());
 
-    client.world.send_event(AppExit);
+    client.world_mut().send_event(AppExit::Success);
     client.update();
     server.update();
     client.update();
     server.update();
 
-    assert!(client.world.resource::<RenetClient>().is_disconnected());
-    assert!(!client.world.resource::<NetcodeClientTransport>().is_connected());
+    assert!(client.world().resource::<RenetClient>().is_disconnected());
+    assert!(!client.world().resource::<NetcodeClientTransport>().is_connected());
 
-    assert!(server.world.resource::<RenetServer>().clients_id().is_empty());
+    assert!(server.world().resource::<RenetServer>().clients_id().is_empty());
 }
 
 #[test]
@@ -301,18 +301,18 @@ fn disconnect_server() {
     let (mut server, mut clients) = create_and_connect_apps(1);
     let mut client = clients.pop().unwrap();
 
-    assert_eq!(server.world.resource::<RenetServer>().clients_id(), [ClientId::from_raw(0)]);
-    assert!(client.world.resource::<NetcodeClientTransport>().is_connected());
+    assert_eq!(server.world().resource::<RenetServer>().clients_id(), [ClientId::from_raw(0)]);
+    assert!(client.world().resource::<NetcodeClientTransport>().is_connected());
 
-    server.world.send_event(AppExit);
+    server.world_mut().send_event(AppExit::Success);
     server.update();
     client.update();
     client.update();
 
-    assert!(server.world.resource::<RenetServer>().clients_id().is_empty());
+    assert!(server.world().resource::<RenetServer>().clients_id().is_empty());
 
-    assert!(client.world.resource::<RenetClient>().is_disconnected());
-    assert!(!client.world.resource::<NetcodeClientTransport>().is_connected());
+    assert!(client.world().resource::<RenetClient>().is_disconnected());
+    assert!(!client.world().resource::<NetcodeClientTransport>().is_connected());
 }
 
 #[test]
@@ -320,8 +320,8 @@ fn no_transport() {
     let (mut server, mut clients) = create_and_connect_apps(1);
     let mut client = clients.pop().unwrap();
 
-    server.world.remove_resource::<NetcodeServerTransport>();
-    client.world.remove_resource::<NetcodeClientTransport>();
+    server.world_mut().remove_resource::<NetcodeServerTransport>();
+    client.world_mut().remove_resource::<NetcodeClientTransport>();
 
     server.update();
     client.update();

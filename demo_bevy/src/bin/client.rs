@@ -295,7 +295,7 @@ fn update_target_system(
     let mut target_transform = target_query.single_mut();
     if let Some(cursor_pos) = primary_window.single().cursor_position() {
         if let Some(ray) = camera.viewport_to_world(camera_transform, cursor_pos) {
-            if let Some(distance) = ray.intersect_plane(Vec3::Y, Plane3d::new(Vec3::Y)) {
+            if let Some(distance) = ray.intersect_plane(Vec3::Y, Plane3d::new(Dir3::Y, Vec2::default())) {
                 target_transform.translation = ray.direction * distance + ray.origin;
             }
         }

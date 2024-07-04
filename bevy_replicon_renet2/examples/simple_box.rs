@@ -8,6 +8,7 @@ use std::{
 };
 
 use bevy::{
+    color::palettes::css::LIME,
     prelude::*,
     winit::{UpdateMode::Continuous, WinitSettings},
 };
@@ -59,7 +60,7 @@ impl SimpleBoxPlugin {
     fn read_cli(mut commands: Commands, cli: Res<Cli>, channels: Res<RepliconChannels>) -> Result<(), Box<dyn Error>> {
         match *cli {
             Cli::SinglePlayer => {
-                commands.spawn(PlayerBundle::new(ClientId::SERVER, Vec2::ZERO, Color::GREEN));
+                commands.spawn(PlayerBundle::new(ClientId::SERVER, Vec2::ZERO, LIME.into()));
             }
             Cli::Server { port } => {
                 let server_channels_config = channels.get_server_configs();
@@ -94,7 +95,7 @@ impl SimpleBoxPlugin {
                         ..default()
                     },
                 ));
-                commands.spawn(PlayerBundle::new(ClientId::SERVER, Vec2::ZERO, Color::GREEN));
+                commands.spawn(PlayerBundle::new(ClientId::SERVER, Vec2::ZERO, LIME.into()));
             }
             Cli::Client { port, ip } => {
                 let server_channels_config = channels.get_server_configs();
@@ -150,7 +151,7 @@ impl SimpleBoxPlugin {
                     let r = ((client_id.get() % 23) as f32) / 23.0;
                     let g = ((client_id.get() % 27) as f32) / 27.0;
                     let b = ((client_id.get() % 39) as f32) / 39.0;
-                    commands.spawn(PlayerBundle::new(*client_id, Vec2::ZERO, Color::rgb(r, g, b)));
+                    commands.spawn(PlayerBundle::new(*client_id, Vec2::ZERO, Color::srgb(r, g, b)));
                 }
                 ServerEvent::ClientDisconnected { client_id, reason } => {
                     info!("{client_id:?} disconnected: {reason}");

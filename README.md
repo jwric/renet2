@@ -29,6 +29,9 @@ Renet2 extends the original [netcode](https://github.com/networkprotocol/netcode
 
 See `renetcode2/NETCODE_EXTENSIONS.md`.
 
+> [!NOTICE]
+> The `demo_bevy` subcrate is disabled while waiting for dependencies to update to Bevy v0.14 (`bevy_egui` and `smooth-bevy-camera`).
+
 
 ## Channels
 
