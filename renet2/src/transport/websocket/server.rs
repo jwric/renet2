@@ -61,6 +61,7 @@ impl PendingClient {
     }
 }
 
+#[derive(Debug)]
 enum ClientConnectionResult {
     Success {
         client_idx: u64,
@@ -170,7 +171,7 @@ impl WebSocketServer {
                 }
                 
                 match Self::handle_connection(client_iterator, connection_req_sender, stream).await {
-                    Ok(result) => {
+                    Ok(result) => {                      
                         if let Some(result) = result {
                             if let Err(err) = connection_sender.try_send(result) {
                                 log::debug!("Failed to send connection result: {:?}", err);
@@ -193,7 +194,6 @@ impl WebSocketServer {
 
         let (uri_sender, mut uri_receiver) = mpsc::channel::<Uri>(1);
         let accept_res = {
-
             let accept_res = tokio_tungstenite::accept_hdr_async(conn, move |req: &Request, res: Response| {
                 let uri = req.uri().clone();
                 uri_sender.try_send(uri).ok();
@@ -360,7 +360,7 @@ impl TransportSocket for WebSocketServer {
         // Notify the pending connection of success.
         let _ = pending_client
             .result_sender
-            .send(ConnectionRequestResult::Success { client_id });
+            .try_send(ConnectionRequestResult::Success { client_id });
         pending_client.client_id = Some(client_id);
 
         // Insert this connection to the client id slot.
