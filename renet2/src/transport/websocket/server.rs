@@ -5,14 +5,14 @@ use tokio::{io::AsyncWriteExt, task::AbortHandle};
 use http::Uri;
 use tokio_tungstenite::WebSocketStream;
 use tungstenite::{
-    handshake::server::{Request, Response}, WebSocket,
+    handshake::server::{Request, Response},
 };
 
 use anyhow::Error;
 use bytes::Bytes;
 use tokio::sync::mpsc;
 
-use crate::transport::{websocket, TransportSocket};
+use crate::transport::TransportSocket;
 
 struct WebSocketServerClient {
     ws_writer: SplitSink<WebSocketStream<tokio::net::TcpStream>, tungstenite::Message>,
@@ -560,7 +560,7 @@ impl TransportSocket for WebSocketServer {
     }
 }
 
-const WT_CONNECT_REQ: &str = "creq";
+const WS_CONNECT_REQ: &str = "creq";
 
 fn extract_client_connection_req(uri: &Uri) -> Result<Vec<u8>, Error> {
     let Some(query) = uri.query() else {
@@ -572,7 +572,7 @@ fn extract_client_connection_req(uri: &Uri) -> Result<Vec<u8>, Error> {
         log::trace!("invalid uri query (missing req), dropping connection request...");
         return Err(Error::msg("invalid uri query (missing req), dropping connection request..."));
     };
-    if key != WT_CONNECT_REQ {
+    if key != WS_CONNECT_REQ {
         log::trace!("invalid uri query (bad key), dropping connection request...");
     }
     let Ok(connection_req) = serde_json::de::from_str::<Vec<u8>>(&connection_req) else {
