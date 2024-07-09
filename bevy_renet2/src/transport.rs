@@ -6,7 +6,6 @@ use renet2::{
 use bevy_app::{prelude::*, AppExit};
 use bevy_ecs::prelude::*;
 use bevy_time::prelude::*;
-use bevy_window::exit_on_all_closed;
 
 use crate::{client_should_update, RenetClientPlugin, RenetReceive, RenetSend, RenetServerPlugin};
 
@@ -26,14 +25,17 @@ impl Plugin for NetcodeServerPlugin {
                 .run_if(resource_exists::<RenetServer>)
                 .after(RenetServerPlugin::update_system)
                 .before(RenetServerPlugin::emit_server_events_system),
-        );
-
-        app.add_systems(
+        )
+        .add_systems(
             PostUpdate,
-            (
-                Self::send_packets.in_set(RenetSend),
-                Self::disconnect_on_exit.after(exit_on_all_closed),
-            )
+            Self::send_packets
+                .in_set(RenetSend)
+                .run_if(resource_exists::<NetcodeServerTransport>)
+                .run_if(resource_exists::<RenetServer>),
+        )
+        .add_systems(
+            Last,
+            Self::disconnect_on_exit
                 .run_if(resource_exists::<NetcodeServerTransport>)
                 .run_if(resource_exists::<RenetServer>),
         );
@@ -77,13 +79,17 @@ impl Plugin for NetcodeClientPlugin {
                 .run_if(resource_exists::<NetcodeClientTransport>)
                 .run_if(client_should_update())
                 .after(RenetClientPlugin::update_system),
-        );
-        app.add_systems(
+        )
+        .add_systems(
             PostUpdate,
-            (
-                Self::send_packets.in_set(RenetSend),
-                Self::disconnect_on_exit.after(exit_on_all_closed),
-            )
+            Self::send_packets
+                .in_set(RenetSend)
+                .run_if(resource_exists::<NetcodeClientTransport>)
+                .run_if(client_should_update()),
+        )
+        .add_systems(
+            Last,
+            Self::disconnect_on_exit
                 .run_if(resource_exists::<NetcodeClientTransport>)
                 .run_if(client_should_update()),
         );

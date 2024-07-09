@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## WIP
+
+- Remove `bevy_renet2` dependency on `bevy_window`.
+
 ## 0.0.5 - 07/04/2024
 
 - Update to Bevy v0.14.

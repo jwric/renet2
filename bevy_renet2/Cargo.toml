@@ -27,7 +27,6 @@ required-features = ["serde", "transport"]
 bevy_app = {version = "0.14", default-features = false}
 bevy_ecs = {version = "0.14", default-features = false}
 bevy_time = {version = "0.14", default-features = false}
-bevy_window = {version = "0.14", default-features = false}
 renet2 = {path = "../renet2", version = "0.0.5", default-features = false, features = ["bevy"]}
 
 [dev-dependencies]
