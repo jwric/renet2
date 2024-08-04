@@ -303,6 +303,7 @@ impl WebTransportClient {
                 // TODO: use a channel to pass vecs back to this loop so allocations can be reused.
                 let Ok(()) = incoming_sender.try_send(data.to_vec()) else { break };
             }
+            handle_promise(reader.cancel());
         });
     }
 }

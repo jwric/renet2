@@ -3,6 +3,7 @@
 ## WIP
 
 - Remove `bevy_renet2` dependency on `bevy_window`.
+- Properly clean up WebTransport client's reader stream.
 
 ## 0.0.5 - 07/04/2024
 
