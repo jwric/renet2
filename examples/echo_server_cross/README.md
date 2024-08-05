@@ -1,6 +1,6 @@
 ## Example cross-platform server using native UDP sockets and WebTransport
 
-This example is set up to use self-signed certificates for WebTransport clients. When launching the server, a certificate hash will be printed to the terminal. That hash must be copy-pasted into the example WebTransport client's Rust code at `>>>>>>>>>>> INSERT SERVER CERT HASH HERE <<<<<<<<<<<`.
+This example is set up to use self-signed certificates for WebTransport clients. WebTransport clients will use an HTTP request to get the current cert automatically.
 
 In practice you'd pass the server's certificate hash through a secure channel to the client (e.g. via an authenticated channel set up when a user connects to your frontend).
 

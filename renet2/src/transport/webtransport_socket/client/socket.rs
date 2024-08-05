@@ -317,7 +317,7 @@ impl Drop for WebTransportClient {
 /// Properly handles a promise.
 ///
 /// A promise runs in the background, but it can have side effects when not handled correctly. See
-/// https://github.com/typescript-eslint/typescript-eslint/blob/main/packages/eslint-plugin/docs/rules/no-floating-promises.md
+/// https://github.com/typescript-eslint/typescript-eslint/blob/main/packages/eslint-plugin/docs/rules/no-floating-promises.mdx
 fn handle_promise(promise: Promise) {
     type OptionalCallback = Option<SendWrapper<Closure<dyn FnMut(JsValue)>>>;
     static mut GET_NOTHING_CALLBACK_HANDLE: OptionalCallback = None;

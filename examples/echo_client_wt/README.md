@@ -1,7 +1,5 @@
 ## Example WASM App
 
-Before running the client, you must paste the server's certificate hash into the client's Rust code. See `echo_server_wt/README.md`.
-
 To run:
 
 - Install `wasm-pack`
