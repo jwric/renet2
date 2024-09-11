@@ -72,25 +72,26 @@ impl MemorySocketChannels {
 /// Set the `encrypted` parameter to `true` if you want to pretend that channels are encrypted. If true, then
 /// netcode **won't** encrypt packets.
 ///
-/// Returns `(server socket, client sockets)`. Client addresses and client ids are derived from indices into the
-/// client socket list.
+/// Returns `(server socket, client sockets)`. Client addresses are derived from client ids.
 ///
-/// ## Panics
+/// Note that duplicate client ids will be removed.
 ///
-/// Panics if `num_clients >= u16::MAX`.
-pub fn new_memory_sockets(num_clients: usize, encrypted: bool) -> (MemorySocketServer, Vec<MemorySocketClient>) {
-    if num_clients >= u16::MAX as usize {
-        panic!("only up to u16::MAX - 1 clients are supported for in-memory sockets");
-    }
+/// # Panics
+///
+/// Panics if any client id equals `u16::MAX`.
+pub fn new_memory_sockets(mut client_ids: Vec<u16>, encrypted: bool) -> (MemorySocketServer, Vec<MemorySocketClient>) {
+    client_ids.sort_unstable();
+    client_ids.dedup();
+
     let mut server_channels = Vec::default();
     let mut client_sockets = Vec::default();
-    server_channels.reserve(num_clients);
-    client_sockets.reserve(num_clients);
+    server_channels.reserve(client_ids.len());
+    client_sockets.reserve(client_ids.len());
 
-    for client_id in 0..num_clients {
+    for client_id in client_ids {
         let (server_chans, client_chans) = MemorySocketChannels::channel_pair();
         server_channels.push(server_chans);
-        client_sockets.push(MemorySocketClient::new_with(client_id as u16, client_chans, encrypted));
+        client_sockets.push(MemorySocketClient::new_with(client_id, client_chans, encrypted));
     }
 
     let server_socket = MemorySocketServer::new_with(server_channels, encrypted);

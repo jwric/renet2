@@ -30,7 +30,7 @@ fn create_server_transport(num_clients: usize) -> (NetcodeServerTransport, Vec<M
         protocol_id: PROTOCOL_ID,
         authentication: ServerAuthentication::Unsecure,
     };
-    let (server_socket, client_sockets) = new_memory_sockets(num_clients, false);
+    let (server_socket, client_sockets) = new_memory_sockets((0..num_clients as u16).collect(), false);
 
     (NetcodeServerTransport::new(server_config, server_socket).unwrap(), client_sockets)
 }
