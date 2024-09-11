@@ -5,6 +5,7 @@
 - Remove `bevy_renet2` dependency on `bevy_window`.
 - Properly clean up WebTransport client's reader stream.
 - Update to `bevy_replicon` v0.28.1.
+- Implement `Clone` for `MemorySocketClient` and `MemorySocketChannels`.
 
 ## 0.0.5 - 07/04/2024
 

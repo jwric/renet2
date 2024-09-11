@@ -9,7 +9,7 @@ use super::*;
 ///
 /// In-memory sockets are treated as encrypted by default for efficiency. Use [`Self::new_with`] to use
 /// a different policy (this is useful for performane tests).
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct MemorySocketClient {
     client_id: u16,
     channels: MemorySocketChannels,

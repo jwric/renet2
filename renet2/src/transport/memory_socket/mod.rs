@@ -40,7 +40,7 @@ pub fn in_memory_client_addr(client_id: u16) -> SocketAddr {
 }
 
 /// Holds the endpoints of bi-directional channels used by in-memory sockets.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct MemorySocketChannels {
     /// Sends packets to a partner.
     pub(self) sender: Sender<InMemoryPacket>,
