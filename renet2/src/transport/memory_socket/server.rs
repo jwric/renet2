@@ -10,20 +10,26 @@ use super::*;
 /// a different policy (this is useful for performance tests).
 #[derive(Debug)]
 pub struct MemorySocketServer {
-    clients: Vec<MemorySocketChannels>,
+    clients: Vec<(u16, MemorySocketChannels)>,
     encrypted: bool,
     drain_index: usize,
 }
 
 impl MemorySocketServer {
     /// Makes a new in-memory socket for a server.
-    pub fn new(clients: Vec<MemorySocketChannels>) -> Self {
+    ///
+    /// Takes a vector of `(client id, socket channels)`.
+    pub fn new(clients: Vec<(u16, MemorySocketChannels)>) -> Self {
         Self::new_with(clients, true)
     }
 
     /// Makes a new in-memory socket for a server with a specific encryption policy.
-    pub fn new_with(clients: Vec<MemorySocketChannels>, encrypted: bool) -> Self {
-        assert!(clients.len() < u16::MAX as usize);
+    ///
+    /// Takes a vector of `(client id, socket channels)`.
+    ///
+    /// If `encrypted` is set to `true` then the memory transport will be treated *as if* it were encrypted.
+    /// If you want `renet2` to encrypt the channel, set it to `false`.
+    pub fn new_with(clients: Vec<(u16, MemorySocketChannels)>, encrypted: bool) -> Self {
         Self {
             clients,
             encrypted,
@@ -59,9 +65,10 @@ impl TransportSocket for MemorySocketServer {
                 return Err(std::io::Error::from(ErrorKind::WouldBlock));
             }
 
-            if let Ok(packet) = self.clients[self.drain_index].receiver.try_recv() {
+            let client = &mut self.clients[self.drain_index];
+            if let Ok(packet) = client.1.receiver.try_recv() {
                 buffer[..packet.len].copy_from_slice(&packet.bytes[..packet.len]);
-                return Ok((packet.len, in_memory_client_addr(self.drain_index as u16)));
+                return Ok((packet.len, in_memory_client_addr(client.0)));
             };
 
             self.drain_index += 1;
@@ -73,15 +80,20 @@ impl TransportSocket for MemorySocketServer {
     fn send(&mut self, addr: SocketAddr, packet: &[u8]) -> Result<(), NetcodeTransportError> {
         assert!(packet.len() <= NETCODE_MAX_PACKET_BYTES);
 
-        let client_id = addr.port() as usize;
-        assert!(client_id < self.clients.len());
+        let client_id = addr.port();
 
         let mut mem_packet = InMemoryPacket {
             len: packet.len(),
             ..Default::default()
         };
         mem_packet.bytes[..packet.len()].copy_from_slice(packet);
-        self.clients[client_id]
+        let idx = self
+            .clients
+            .iter()
+            .position(|(id, _)| *id == client_id)
+            .ok_or_else(|| std::io::Error::from(ErrorKind::AddrNotAvailable))?;
+        self.clients[idx]
+            .1
             .sender
             .send(mem_packet)
             .map_err(|_| std::io::Error::from(ErrorKind::ConnectionAborted))?;

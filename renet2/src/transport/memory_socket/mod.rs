@@ -90,7 +90,7 @@ pub fn new_memory_sockets(mut client_ids: Vec<u16>, encrypted: bool) -> (MemoryS
 
     for client_id in client_ids {
         let (server_chans, client_chans) = MemorySocketChannels::channel_pair();
-        server_channels.push(server_chans);
+        server_channels.push((client_id, server_chans));
         client_sockets.push(MemorySocketClient::new_with(client_id, client_chans, encrypted));
     }
 

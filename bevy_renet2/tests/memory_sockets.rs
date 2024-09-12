@@ -30,7 +30,7 @@ fn create_server_transport(num_clients: usize) -> (NetcodeServerTransport, Vec<M
         protocol_id: PROTOCOL_ID,
         authentication: ServerAuthentication::Unsecure,
     };
-    let (server_socket, client_sockets) = new_memory_sockets((0..num_clients as u16).collect(), false);
+    let (server_socket, client_sockets) = new_memory_sockets((1..=num_clients as u16).collect(), false);
 
     (NetcodeServerTransport::new(server_config, server_socket).unwrap(), client_sockets)
 }
@@ -194,7 +194,7 @@ fn multiple_messages_client() {
     assert!(client_received(&client).is_empty());
     assert_eq!(
         server_received(&server),
-        [(0, vec![1, 2]), (0, vec![3]), (0, vec![1, 2]), (0, vec![3])]
+        [(1, vec![1, 2]), (1, vec![3]), (1, vec![1, 2]), (1, vec![3])]
     );
 
     client.update();
@@ -204,12 +204,12 @@ fn multiple_messages_client() {
     assert_eq!(
         server_received(&server),
         [
-            (0, vec![1, 2]),
-            (0, vec![3]),
-            (0, vec![1, 2]),
-            (0, vec![3]),
-            (0, vec![1, 2]),
-            (0, vec![3])
+            (1, vec![1, 2]),
+            (1, vec![3]),
+            (1, vec![1, 2]),
+            (1, vec![3]),
+            (1, vec![1, 2]),
+            (1, vec![3])
         ]
     );
 }
@@ -234,7 +234,7 @@ fn both_directions() {
     server.update();
 
     assert_eq!(client_received(&client), [[1]]);
-    assert_eq!(server_received(&server), [(0, vec![2])]);
+    assert_eq!(server_received(&server), [(1, vec![2])]);
 }
 
 #[test]
@@ -272,7 +272,7 @@ fn multiple_clients() {
     assert_eq!(client_received(&client1), [[0]]);
     assert_eq!(client_received(&client2), [[0]]);
     assert_eq!(client_received(&client3), [[0]]);
-    assert_eq!(server_received(&server), [(0, vec![1]), (1, vec![2]), (2, vec![3])]);
+    assert_eq!(server_received(&server), [(1, vec![1]), (2, vec![2]), (3, vec![3])]);
 }
 
 #[test]
@@ -281,7 +281,7 @@ fn disconnect_client() {
     let mut client = clients.pop().unwrap();
 
     server.update();
-    assert_eq!(server.world().resource::<RenetServer>().clients_id(), vec![ClientId::from_raw(0)]);
+    assert_eq!(server.world().resource::<RenetServer>().clients_id(), vec![ClientId::from_raw(1)]);
     assert!(client.world().resource::<NetcodeClientTransport>().is_connected());
 
     client.world_mut().send_event(AppExit::Success);
@@ -301,7 +301,7 @@ fn disconnect_server() {
     let (mut server, mut clients) = create_and_connect_apps(1);
     let mut client = clients.pop().unwrap();
 
-    assert_eq!(server.world().resource::<RenetServer>().clients_id(), [ClientId::from_raw(0)]);
+    assert_eq!(server.world().resource::<RenetServer>().clients_id(), [ClientId::from_raw(1)]);
     assert!(client.world().resource::<NetcodeClientTransport>().is_connected());
 
     server.world_mut().send_event(AppExit::Success);
