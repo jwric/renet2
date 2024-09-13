@@ -7,6 +7,7 @@
 - Update to `bevy_replicon` v0.28.1.
 - Implement `Clone` for `MemorySocketClient` and `MemorySocketChannels`.
 - Client ids for memory transports must now be manually defined. Note that in `bevy_replicon` client id `0` is reserved for listen servers.
+- Update `bevy_replicon_renet2` to re-export the `client` and `server` features from `bevy_replicon`.
 
 ## 0.0.5 - 07/04/2024
 

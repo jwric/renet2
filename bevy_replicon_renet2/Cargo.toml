@@ -18,7 +18,7 @@ license = "MIT OR Apache-2.0"
 repository = "https://github.com/UkoeHB/renet2"
 
 [dependencies]
-bevy_replicon = { version = ">=0.28.1" }
+bevy_replicon = { version = ">=0.28.1", default-features = false }
 bevy_renet2 = { path = "../bevy_renet2", version = "0.0.5", default-features = false }
 bevy = { version = "0.14", default-features = false }
 
@@ -38,7 +38,11 @@ log = "0.4"
 tracing-subscriber = { version = "0.3", features = [ "env-filter", "std", "tracing-log" ] }
 
 [features]
-default = ["renet_serde", "transport"]
+default = ["renet_serde", "transport", "client", "server"]
+
+# Re-exports of bevy_replicon features
+client = ["bevy_replicon/client"]
+server = ["bevy_replicon/server"]
 
 # Re-exports of renet features
 renet_serde = ["bevy_renet2/serde"]
@@ -50,4 +54,4 @@ wt_client_transport = ["transport", "bevy_renet2/wt_client_transport"]
 
 [[test]]
 name = "transport"
-required-features = ["native_transport"]
+required-features = ["native_transport", "client", "server"]
