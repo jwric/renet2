@@ -2,6 +2,9 @@
 
 ## WIP
 
+
+## 0.0.6 - 09/22/24
+
 - Remove `bevy_renet2` dependency on `bevy_window`.
 - Properly clean up WebTransport client's reader stream.
 - Update to `bevy_replicon` v0.28.1.

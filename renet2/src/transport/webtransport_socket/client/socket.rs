@@ -61,7 +61,7 @@ pub struct WebTransportClientConfig {
     ///
     /// Check [browser availability][browser_availability], as this is an experimental feature.
     ///
-    /// [browser_availability]: (https://caniuse.com/mdn-api_webtransport_webtransport_options_congestioncontrol_parameter
+    /// [browser_availability]: https://caniuse.com/mdn-api_webtransport_webtransport_options_congestioncontrol_parameter
     pub congestion_control: CongestionControl,
     /// The server's private certification hashes.
     ///
@@ -74,7 +74,7 @@ pub struct WebTransportClientConfig {
     /// check [browser availability][browser_availability], as this is an experimental feature.
     ///
     /// [cert_hashes]: https://developer.mozilla.org/en-US/docs/Web/API/WebTransport/WebTransport#servercertificatehashes
-    /// [browser_availability]: (https://caniuse.com/mdn-api_webtransport_webtransport_options_servercertificatehashes_parameter
+    /// [browser_availability]: https://caniuse.com/mdn-api_webtransport_webtransport_options_servercertificatehashes_parameter
     pub server_cert_hashes: Vec<ServerCertHash>,
 }
 
