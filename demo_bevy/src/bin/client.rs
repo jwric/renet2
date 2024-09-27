@@ -223,7 +223,7 @@ fn client_sync_players(
                 println!("Player {} connected.", id);
                 let mut client_entity = commands.spawn(PbrBundle {
                     mesh: meshes.add(Mesh::from(Capsule3d::default())),
-                    material: materials.add(Color::rgb(0.8, 0.7, 0.6)),
+                    material: materials.add(Color::srgb(0.8, 0.7, 0.6)),
                     transform: Transform::from_xyz(translation[0], translation[1], translation[2]),
                     ..Default::default()
                 });
@@ -233,11 +233,11 @@ fn client_sync_players(
                 }
 
                 let player_info = PlayerInfo {
-                    server_entity: entity,
+                    server_entity: Entity::from_bits(entity),
                     client_entity: client_entity.id(),
                 };
                 lobby.players.insert(id, player_info);
-                network_mapping.0.insert(entity, client_entity.id());
+                network_mapping.0.insert(Entity::from_bits(entity), client_entity.id());
             }
             ServerMessages::PlayerRemove { id } => {
                 println!("Player {} disconnected.", id);
@@ -253,14 +253,14 @@ fn client_sync_players(
             ServerMessages::SpawnProjectile { entity, translation } => {
                 let projectile_entity = commands.spawn(PbrBundle {
                     mesh: meshes.add(Mesh::from(Sphere::new(0.1))),
-                    material: materials.add(Color::rgb(1.0, 0.0, 0.0)),
+                    material: materials.add(Color::srgb(1.0, 0.0, 0.0)),
                     transform: Transform::from_translation(translation.into()),
                     ..Default::default()
                 });
-                network_mapping.0.insert(entity, projectile_entity.id());
+                network_mapping.0.insert(Entity::from_bits(entity), projectile_entity.id());
             }
             ServerMessages::DespawnProjectile { entity } => {
-                if let Some(entity) = network_mapping.0.remove(&entity) {
+                if let Some(entity) = network_mapping.0.remove(&Entity::from_bits(entity)) {
                     commands.entity(entity).despawn();
                 }
             }
@@ -271,7 +271,7 @@ fn client_sync_players(
         let networked_entities: NetworkedEntities = bincode::deserialize(&message).unwrap();
 
         for i in 0..networked_entities.entities.len() {
-            if let Some(entity) = network_mapping.0.get(&networked_entities.entities[i]) {
+            if let Some(entity) = network_mapping.0.get(&Entity::from_bits(networked_entities.entities[i])) {
                 let translation = networked_entities.translations[i].into();
                 let transform = Transform {
                     translation,
@@ -295,7 +295,7 @@ fn update_target_system(
     let mut target_transform = target_query.single_mut();
     if let Some(cursor_pos) = primary_window.single().cursor_position() {
         if let Some(ray) = camera.viewport_to_world(camera_transform, cursor_pos) {
-            if let Some(distance) = ray.intersect_plane(Vec3::Y, Plane3d::new(Dir3::Y, Vec2::default())) {
+            if let Some(distance) = ray.intersect_plane(Vec3::Y, InfinitePlane3d::new(Dir3::Y)) {
                 target_transform.translation = ray.direction * distance + ray.origin;
             }
         }
@@ -322,7 +322,7 @@ fn setup_target(mut commands: Commands, mut meshes: ResMut<Assets<Mesh>>, mut ma
     commands
         .spawn(PbrBundle {
             mesh: meshes.add(Mesh::from(Sphere::new(0.1))),
-            material: materials.add(Color::rgb(1.0, 0.0, 0.0)),
+            material: materials.add(Color::srgb(1.0, 0.0, 0.0)),
             transform: Transform::from_xyz(0.0, 0., 0.0),
             ..Default::default()
         })

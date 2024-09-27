@@ -150,7 +150,7 @@ fn server_update_system(
                     let translation: [f32; 3] = transform.translation.into();
                     let message = bincode::serialize(&ServerMessages::PlayerCreate {
                         id: player.id,
-                        entity,
+                        entity: entity.to_bits(),
                         translation,
                     })
                     .unwrap();
@@ -162,7 +162,7 @@ fn server_update_system(
                 let player_entity = commands
                     .spawn(PbrBundle {
                         mesh: meshes.add(Mesh::from(Capsule3d::default())),
-                        material: materials.add(Color::rgb(0.8, 0.7, 0.6)),
+                        material: materials.add(Color::srgb(0.8, 0.7, 0.6)),
                         transform,
                         ..Default::default()
                     })
@@ -176,7 +176,7 @@ fn server_update_system(
                 let translation: [f32; 3] = transform.translation.into();
                 let message = bincode::serialize(&ServerMessages::PlayerCreate {
                     id: *client_id,
-                    entity: player_entity,
+                    entity: player_entity.to_bits(),
                     translation,
                 })
                 .unwrap();
@@ -212,7 +212,7 @@ fn server_update_system(
 
                             let fireball_entity = spawn_fireball(&mut commands, &mut meshes, &mut materials, translation, direction);
                             let message = ServerMessages::SpawnProjectile {
-                                entity: fireball_entity,
+                                entity: fireball_entity.to_bits(),
                                 translation: translation.into(),
                             };
                             let message = bincode::serialize(&message).unwrap();
@@ -249,7 +249,7 @@ fn update_visulizer_system(mut egui_contexts: EguiContexts, mut visualizer: ResM
 fn server_network_sync(mut server: ResMut<RenetServer>, query: Query<(Entity, &Transform), Or<(With<Player>, With<Projectile>)>>) {
     let mut networked_entities = NetworkedEntities::default();
     for (entity, transform) in query.iter() {
-        networked_entities.entities.push(entity);
+        networked_entities.entities.push(entity.to_bits());
         networked_entities.translations.push(transform.translation.into());
     }
 
@@ -283,7 +283,7 @@ pub fn setup_simple_camera(mut commands: Commands) {
 
 fn projectile_on_removal_system(mut server: ResMut<RenetServer>, mut removed_projectiles: RemovedComponents<Projectile>) {
     for entity in removed_projectiles.read() {
-        let message = ServerMessages::DespawnProjectile { entity };
+        let message = ServerMessages::DespawnProjectile { entity: entity.to_bits() };
         let message = bincode::serialize(&message).unwrap();
 
         server.broadcast_message(ServerChannel::ServerMessages, message);
@@ -307,7 +307,7 @@ fn spawn_bot(
         let player_entity = commands
             .spawn(PbrBundle {
                 mesh: meshes.add(Mesh::from(Capsule3d::default())),
-                material: materials.add(Color::rgb(0.8, 0.7, 0.6)),
+                material: materials.add(Color::srgb(0.8, 0.7, 0.6)),
                 transform,
                 ..Default::default()
             })
@@ -322,7 +322,7 @@ fn spawn_bot(
         let translation: [f32; 3] = transform.translation.into();
         let message = bincode::serialize(&ServerMessages::PlayerCreate {
             id: client_id,
-            entity: player_entity,
+            entity: player_entity.to_bits(),
             translation,
         })
         .unwrap();
@@ -351,7 +351,7 @@ fn bot_autocast(
 
             let fireball_entity = spawn_fireball(&mut commands, &mut meshes, &mut materials, translation, direction);
             let message = ServerMessages::SpawnProjectile {
-                entity: fireball_entity,
+                entity: fireball_entity.to_bits(),
                 translation: translation.into(),
             };
             let message = bincode::serialize(&message).unwrap();

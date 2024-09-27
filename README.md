@@ -22,8 +22,6 @@ Provides the following features:
     - The underlying data transport/socket can be customized. Both unencrypted (e.g. UDP) and encrypted (e.g. WebTransport) data transports are supported.
 - Built-in UDP sockets, in-memory sockets, and WebTransport sockets for flexible, cross-platform networking using the `netcode` protocol.
 
-> [!WARNING]
-> The `demo_bevy` subcrate is disabled while waiting for dependencies to update to Bevy v0.14 (`bevy_egui` and `smooth-bevy-camera`).
 
 ## Differences from `renet`
 

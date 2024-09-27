@@ -4,7 +4,7 @@ members = [
     #"examples/echo_client_wt", # requires wasm32-unknown-unknown target
     "examples/echo_server_cross",
     "demo_chat",
-    #"demo_bevy",
+    "demo_bevy",
     "bevy_renet2",
     "bevy_replicon_renet2",
     "renet2",

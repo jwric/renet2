@@ -40,26 +40,15 @@ pub struct Velocity(pub Vec3);
 
 #[derive(Debug, Serialize, Deserialize, Component)]
 pub enum ServerMessages {
-    PlayerCreate {
-        entity: Entity,
-        id: ClientId,
-        translation: [f32; 3],
-    },
-    PlayerRemove {
-        id: ClientId,
-    },
-    SpawnProjectile {
-        entity: Entity,
-        translation: [f32; 3],
-    },
-    DespawnProjectile {
-        entity: Entity,
-    },
+    PlayerCreate { entity: u64, id: ClientId, translation: [f32; 3] },
+    PlayerRemove { id: ClientId },
+    SpawnProjectile { entity: u64, translation: [f32; 3] },
+    DespawnProjectile { entity: u64 },
 }
 
 #[derive(Debug, Serialize, Deserialize, Default)]
 pub struct NetworkedEntities {
-    pub entities: Vec<Entity>,
+    pub entities: Vec<u64>,
     pub translations: Vec<[f32; 3]>,
 }
 
