@@ -106,8 +106,8 @@ impl WebTransportClientConfig {
     /// - The [`allowPooling`][allow_pooling] field is set to false.
     /// - The [`requireUnreliable`][require_unreliable] field is set to true. The server should be using HTTP/3.
     ///
-    /// [allow_pooling]: https://developer.mozilla.org/en-US/docs/Web/API/WebTransport/WebTransport#allowPooling
-    /// [require_unreliable]: https://developer.mozilla.org/en-US/docs/Web/API/WebTransport/WebTransport#requireunreliable)
+    /// [allow_pooling]: <https://developer.mozilla.org/en-US/docs/Web/API/WebTransport/WebTransport#allowPooling>
+    /// [require_unreliable]: <https://developer.mozilla.org/en-US/docs/Web/API/WebTransport/WebTransport#requireunreliable>
     pub fn wt_options(&self) -> WebTransportOptions {
         let mut options = WebTransportOptions::new();
         options.congestion_control(self.congestion_control.to_wt()).require_unreliable(true);

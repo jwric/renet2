@@ -1,3 +1,4 @@
+#![cfg_attr(docsrs, feature(doc_auto_cfg))]
 /*!
 Provides integration for [`bevy_replicon`](https://docs.rs/bevy_replicon) for `bevy_renet2`.
 
@@ -11,7 +12,7 @@ Renet by default uses the netcode transport which is re-exported by the `transpo
 
 ## Initialization
 
-Add [`RepliconRenetPlugins`] along with [`RepliconPlugins`]:
+Add [`RepliconRenetPlugins`] along with [`RepliconPlugins`](bevy_replicon::prelude::RepliconPlugins):
 
 ```
 use bevy::prelude::*;
@@ -29,8 +30,8 @@ If the `transport` feature is enabled, netcode plugins will also be automaticall
 ## Server and client creation
 
 To connect to the server or create it, you need to initialize the
-[`RenetClient`] and [`NetcodeClientTransport`] **or**
-[`RenetServer`] and [`NetcodeServerTransport`](renet2::transport::NetcodeServerTransport) resources from Renet.
+[`RenetClient`](renet2::RenetClient) and [`NetcodeClientTransport`](renet2::transport::NetcodeClientTransport) **or**
+[`RenetServer`](renet2::RenetServer) and [`NetcodeServerTransport`](renet2::transport::NetcodeServerTransport) resources from Renet.
 
 Never insert client and server resources in the same app for single-player, it will cause a replication loop.
 

@@ -1,9 +1,7 @@
 #[cfg(all(feature = "wt_client_transport", target_family = "wasm"))]
-#[cfg_attr(docsrs, doc(cfg(all(feature = "wt_client_transport", target_family = "wasm"))))]
 mod client;
 
 #[cfg(all(feature = "wt_server_transport", not(target_family = "wasm")))]
-#[cfg_attr(docsrs, doc(cfg(all(feature = "wt_server_transport", not(target_family = "wasm")))))]
 mod server;
 
 mod utils;

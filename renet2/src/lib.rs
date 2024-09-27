@@ -1,4 +1,4 @@
-#![cfg_attr(docsrs, feature(doc_cfg))]
+#![cfg_attr(docsrs, feature(doc_auto_cfg))]
 
 mod channel;
 mod connection_stats;
@@ -8,7 +8,6 @@ mod remote_connection;
 mod server;
 
 #[cfg(feature = "transport")]
-#[cfg_attr(docsrs, doc(cfg(feature = "transport")))]
 pub mod transport;
 
 pub use channel::{ChannelConfig, DefaultChannel, SendType};

@@ -2,6 +2,7 @@
 
 ## WIP
 
+- Add section to README about building docs. Fixup doc links.
 
 ## 0.0.6 - 09/22/24
 

@@ -7,7 +7,7 @@ use std::path::PathBuf;
 
 use crate::transport::{ServerCertHash, WebServerDestination};
 
-/// Generates a self-signed certificate for use in [`WebTransportConfig`].
+/// Generates a self-signed certificate for use in `WebTransportConfig`.
 ///
 /// The [`PrivateKey`] should not be publicized.
 pub fn generate_self_signed_certificate(params: CertificateParams) -> Result<(Certificate, PrivateKey), rcgen::Error> {
@@ -18,7 +18,7 @@ pub fn generate_self_signed_certificate(params: CertificateParams) -> Result<(Ce
     Ok((certificate, privkey))
 }
 
-/// Generates a self-signed certificate for use in [`WebTransportConfig`].
+/// Generates a self-signed certificate for use in `WebTransportConfig`.
 ///
 /// The certificate generated is opinionated based on how it is expected to be used.
 /// - The validity period is set to 2 weeks from now to support [`ServerCertHash`].

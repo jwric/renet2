@@ -16,6 +16,7 @@
 //!
 //! [standard]: https://github.com/networkprotocol/netcode/blob/master/STANDARD.md
 //! [netcode]: https://github.com/networkprotocol/netcode
+#![cfg_attr(docsrs, feature(doc_auto_cfg))]
 mod client;
 mod crypto;
 mod error;

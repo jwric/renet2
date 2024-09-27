@@ -1,3 +1,5 @@
+#![cfg_attr(docsrs, feature(doc_auto_cfg))]
+
 const MAX_MESSAGE_BATCH_SIZE: usize = 512;
 
 mod client;

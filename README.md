@@ -41,6 +41,20 @@ See `renetcode2/NETCODE_EXTENSIONS.md`.
 - Includes built-in data transports: `UdpSockets`, memory channels, WebTransport.
 
 
+## Building docs
+
+Build workspace docs (no WASM):
+```
+cargo doc --open --no-deps --all-features
+```
+
+Build WASM docs (`renet2` workspace crate only):
+```
+cd renet2 &&\
+cargo doc --open --no-deps --no-default-features --features=wt_client_transport,transport --target wasm32-unknown-unknown
+```
+
+
 ## Channels
 
 Renet communication is message based, and channels describe how the messages should be delivered.

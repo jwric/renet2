@@ -28,8 +28,9 @@ const IN_MEMORY_SERVER_ID: u16 = u16::MAX;
 
 /// Produces a [`SocketAddr`] for in-memory server sockets.
 ///
-/// This should be used in the [`ConnectToken::server_addresses`] field for client connection requests, and the
-/// [`ServerSocketConfig::public_addresses`] field for setting up servers.
+/// This should be used in the [`ConnectToken::server_addresses`](renetcode2::ConnectToken::server_addresses) field
+/// for client connection requests, and the
+/// [`ServerSocketConfig::public_addresses`](renetcode2::ServerSocketConfig::public_addresses) field for setting up servers.
 pub fn in_memory_server_addr() -> SocketAddr {
     SocketAddr::new(IpAddr::V6(Ipv6Addr::UNSPECIFIED), IN_MEMORY_SERVER_ID)
 }

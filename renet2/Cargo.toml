@@ -10,8 +10,8 @@ readme = "../README.md"
 repository = "https://github.com/UkoeHB/renet2"
 
 [package.metadata.docs.rs]
-all-features = true
-rustdoc-args = ["--cfg", "docsrs"]
+features = ["default", "bevy", "serde", "memory_transport", "wt_server_transport"]
+rustdoc-args = ["-Zunstable-options", "--cfg", "docsrs"]
 
 [features]
 # Default features

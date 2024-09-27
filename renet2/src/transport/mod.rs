@@ -2,10 +2,8 @@ use std::{error::Error, fmt};
 
 mod client;
 #[cfg(feature = "memory_transport")]
-#[cfg_attr(docsrs, doc(cfg(feature = "memory_transport")))]
 mod memory_socket;
 #[cfg(all(feature = "native_transport", not(target_family = "wasm")))]
-#[cfg_attr(docsrs, doc(cfg(all(feature = "native_transport", not(target_family = "wasm")))))]
 mod native_socket;
 mod server;
 mod transport_socket;

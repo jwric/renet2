@@ -3,10 +3,11 @@ use std::net::SocketAddr;
 
 use super::NetcodeTransportError;
 
-/// Unreliable data source for use in [`NetcodeServerTransport`] and [`NetcodeClientTransport`].
+/// Unreliable data source for use in [`NetcodeServerTransport`](super::NetcodeServerTransport) and
+/// [`NetcodeClientTransport`](super::NetcodeClientTransport).
 ///
 /// Note that while `netcode` uses `SocketAddr` everywhere, if your transport uses a different 'connection URL'
-/// scheme then you can layer the bytes into the [`ConnectToken`](renet::ConnectToken) server address list.
+/// scheme then you can layer the bytes into the [`ConnectToken`](renetcode2::ConnectToken) server address list.
 /// Just keep in mind that when a client disconnects, the client will traverse the server address list to find
 /// an address to reconnect with. If that isn't supported by your scheme, then when [`TransportSocket::send`] is
 /// called with an invalid/unexpected server address you should return an error. If you want to support
@@ -54,7 +55,7 @@ pub trait TransportSocket: Debug + Send + Sync + 'static {
     ///
     /// Returns the number of bytes written to the buffer, and the source address of the bytes.
     ///
-    /// Should return [`io::ErrorKind::WouldBlock`] when no packets are available.
+    /// Should return [`std::io::ErrorKind::WouldBlock`] when no packets are available.
     fn try_recv(&mut self, buffer: &mut [u8]) -> std::io::Result<(usize, SocketAddr)>;
 
     /// Handles data-source-specific logic that must run after sending packets.
@@ -62,6 +63,6 @@ pub trait TransportSocket: Debug + Send + Sync + 'static {
 
     /// Sends a packet to the designated address.
     ///
-    /// Should return [`io::ErrorKind::ConnectionAborted`] if the destination's connection was closed internally.
+    /// Should return [`std::io::ErrorKind::ConnectionAborted`] if the destination's connection was closed internally.
     fn send(&mut self, addr: SocketAddr, packet: &[u8]) -> Result<(), NetcodeTransportError>;
 }
