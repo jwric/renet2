@@ -65,7 +65,7 @@ fn main() {
 const PROTOCOL_ID: u64 = 7;
 
 fn server(public_addr: SocketAddr) {
-    let connection_config = ConnectionConfig::default();
+    let connection_config = ConnectionConfig::test();
     let mut server: RenetServer = RenetServer::new(connection_config);
 
     let current_time = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap();
@@ -140,7 +140,7 @@ fn server(public_addr: SocketAddr) {
 }
 
 fn client(server_addr: SocketAddr, username: Username) {
-    let connection_config = ConnectionConfig::default();
+    let connection_config = ConnectionConfig::test();
     let mut client = RenetClient::new(connection_config);
 
     let socket = UdpSocket::bind("127.0.0.1:0").unwrap();

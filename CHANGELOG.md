@@ -4,6 +4,7 @@
 
 - Add section to README about building docs. Fixup doc links.
 - Update `demo_bevy` workspace crate to bevy v0.14.
+- Rename `ConnectionConfig::default()` to `ConnectionConfig::test()` and add constructor methods.
 
 ## 0.0.6 - 09/22/24
 

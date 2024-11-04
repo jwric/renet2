@@ -49,7 +49,7 @@ fn create_client_transport(socket: MemorySocketClient) -> NetcodeClientTransport
 }
 
 fn setup_server(app: &mut App, num_clients: usize) -> Vec<MemorySocketClient> {
-    let server = RenetServer::new(ConnectionConfig::default());
+    let server = RenetServer::new(ConnectionConfig::test());
     let (transport, client_sockets) = create_server_transport(num_clients);
 
     app.insert_resource(server).insert_resource(transport);
@@ -58,7 +58,7 @@ fn setup_server(app: &mut App, num_clients: usize) -> Vec<MemorySocketClient> {
 }
 
 fn setup_client(app: &mut App, socket: MemorySocketClient) {
-    let client = RenetClient::new(ConnectionConfig::default());
+    let client = RenetClient::new(ConnectionConfig::test());
     let transport = create_client_transport(socket);
 
     app.insert_resource(client).insert_resource(transport);

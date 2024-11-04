@@ -42,7 +42,7 @@ fn main() {
     let mut transport = NetcodeClientTransport::new(current_time, authentication, client_socket).unwrap();
 
     // Run the client
-    let mut client = RenetClient::new(ConnectionConfig::default());
+    let mut client = RenetClient::new(ConnectionConfig::test());
 
     let stdin_channel: Receiver<String> = spawn_stdin_channel();
     let mut last_updated = Instant::now();

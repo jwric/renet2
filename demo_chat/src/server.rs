@@ -40,7 +40,7 @@ impl ChatServer {
 
         let transport = NetcodeServerTransport::new(server_config, NativeSocket::new(socket).unwrap()).unwrap();
 
-        let server: RenetServer = RenetServer::new(ConnectionConfig::default());
+        let server: RenetServer = RenetServer::new(ConnectionConfig::test());
 
         let mut usernames = HashMap::new();
         usernames.insert(HOST_CLIENT_ID, host_username);

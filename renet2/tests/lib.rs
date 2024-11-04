@@ -8,8 +8,8 @@ pub fn init_log() {
 #[test]
 fn test_remote_connection_reliable_channel() {
     init_log();
-    let mut server = RenetServer::new(ConnectionConfig::default());
-    let mut client = RenetClient::new(ConnectionConfig::default());
+    let mut server = RenetServer::new(ConnectionConfig::test());
+    let mut client = RenetClient::new(ConnectionConfig::test());
 
     let client_id = ClientId::from_raw(0);
     server.add_connection(client_id);

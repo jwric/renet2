@@ -29,6 +29,28 @@ pub struct ConnectionConfig {
     pub client_channels_config: Vec<ChannelConfig>,
 }
 
+impl ConnectionConfig {
+    /// Makes a new config with default `available_bytes_per_tick`.
+    pub fn new_with_channels(server: Vec<ChannelConfig>, client: Vec<ChannelConfig>) -> Self {
+        Self {
+            // At 60hz this is becomes 28.8 Mbps
+            available_bytes_per_tick: 60_000,
+            server_channels_config: server,
+            client_channels_config: client,
+        }
+    }
+
+    /// Makes a new config with default `available_bytes_per_tick` and the same server and client channels.
+    pub fn new_with_shared_channels(channels: Vec<ChannelConfig>) -> Self {
+        Self::new_with_channels(channels.clone(), channels)
+    }
+
+    /// Makes a new config for testing purposes.
+    pub fn test() -> Self {
+        Self::new_with_shared_channels(DefaultChannel::config())
+    }
+}
+
 #[derive(Debug, Clone)]
 struct PacketSent {
     sent_at: Duration,
@@ -106,17 +128,6 @@ pub struct RenetClient {
     available_bytes_per_tick: u64,
     connection_status: RenetConnectionStatus,
     rtt: f64,
-}
-
-impl Default for ConnectionConfig {
-    fn default() -> Self {
-        Self {
-            // At 60hz this is becomes 28.8 Mbps
-            available_bytes_per_tick: 60_000,
-            server_channels_config: DefaultChannel::config(),
-            client_channels_config: DefaultChannel::config(),
-        }
-    }
 }
 
 impl RenetClient {
@@ -735,7 +746,7 @@ mod tests {
 
     #[test]
     fn pending_acks() {
-        let mut connection = RenetClient::new(ConnectionConfig::default());
+        let mut connection = RenetClient::new(ConnectionConfig::test());
         connection.add_pending_ack(3);
         assert_eq!(connection.pending_acks, vec![3..4]);
 
@@ -763,7 +774,7 @@ mod tests {
 
     #[test]
     fn ack_pending_acks() {
-        let mut connection = RenetClient::new(ConnectionConfig::default());
+        let mut connection = RenetClient::new(ConnectionConfig::test());
         for i in 0..10 {
             connection.add_pending_ack(i);
         }
@@ -789,7 +800,7 @@ mod tests {
 
     #[test]
     fn discard_old_packets() {
-        let mut connection = RenetClient::new(ConnectionConfig::default());
+        let mut connection = RenetClient::new(ConnectionConfig::test());
         let message: Bytes = vec![5; 5].into();
         connection.send_message(0, message);
 

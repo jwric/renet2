@@ -102,7 +102,7 @@ impl<const N: usize> RenetClientVisualizer<N> {
     /// ```
     /// # use renet2::{RenetClient, ConnectionConfig};
     /// # use renet2_visualizer::RenetClientVisualizer;
-    /// # let mut client = RenetClient::new(ConnectionConfig::default());
+    /// # let mut client = RenetClient::new(ConnectionConfig::test());
     /// # let delta = std::time::Duration::ZERO;
     /// # let mut visualizer = RenetClientVisualizer::<5>::new(Default::default());
     /// client.update(delta);
@@ -203,7 +203,7 @@ impl<const N: usize> RenetServerVisualizer<N> {
     /// ```
     /// # use renet2::{RenetServer, ServerEvent, ConnectionConfig};
     /// # use renet2_visualizer::RenetServerVisualizer;
-    /// # let mut renet_server = RenetServer::new(ConnectionConfig::default());
+    /// # let mut renet_server = RenetServer::new(ConnectionConfig::test());
     /// # let mut visualizer = RenetServerVisualizer::<5>::new(Default::default());
     /// while let Some(event) = renet_server.get_event() {
     ///     match event {
@@ -226,7 +226,7 @@ impl<const N: usize> RenetServerVisualizer<N> {
     /// ```
     /// # use renet2::{RenetServer, ServerEvent, ConnectionConfig};
     /// # use renet2_visualizer::RenetServerVisualizer;
-    /// # let mut renet_server = RenetServer::new(ConnectionConfig::default());
+    /// # let mut renet_server = RenetServer::new(ConnectionConfig::test());
     /// # let mut visualizer = RenetServerVisualizer::<5>::new(Default::default());
     /// while let Some(event) = renet_server.get_event() {
     ///     match event {
@@ -255,7 +255,7 @@ impl<const N: usize> RenetServerVisualizer<N> {
     /// ```
     /// # use renet2::{RenetServer, ConnectionConfig};
     /// # use renet2_visualizer::RenetServerVisualizer;
-    /// # let mut renet_server = RenetServer::new(ConnectionConfig::default());
+    /// # let mut renet_server = RenetServer::new(ConnectionConfig::test());
     /// # let mut visualizer = RenetServerVisualizer::<5>::new(Default::default());
     /// # let delta = std::time::Duration::ZERO;
     /// renet_server.update(delta);

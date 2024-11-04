@@ -63,14 +63,10 @@ impl SimpleBoxPlugin {
                 commands.spawn(PlayerBundle::new(ClientId::SERVER, Vec2::ZERO, LIME.into()));
             }
             Cli::Server { port } => {
-                let server_channels_config = channels.get_server_configs();
-                let client_channels_config = channels.get_client_configs();
-
-                let server = RenetServer::new(ConnectionConfig {
-                    server_channels_config,
-                    client_channels_config,
-                    ..Default::default()
-                });
+                let server = RenetServer::new(ConnectionConfig::new_with_channels(
+                    channels.get_server_configs(),
+                    channels.get_client_configs(),
+                ));
 
                 let current_time = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH)?;
                 let public_addr = SocketAddr::new(Ipv4Addr::LOCALHOST.into(), port);
@@ -98,14 +94,10 @@ impl SimpleBoxPlugin {
                 commands.spawn(PlayerBundle::new(ClientId::SERVER, Vec2::ZERO, LIME.into()));
             }
             Cli::Client { port, ip } => {
-                let server_channels_config = channels.get_server_configs();
-                let client_channels_config = channels.get_client_configs();
-
-                let client = RenetClient::new(ConnectionConfig {
-                    server_channels_config,
-                    client_channels_config,
-                    ..Default::default()
-                });
+                let client = RenetClient::new(ConnectionConfig::new_with_channels(
+                    channels.get_server_configs(),
+                    channels.get_client_configs(),
+                ));
 
                 let current_time = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH)?;
                 let client_id = current_time.as_millis() as u64;

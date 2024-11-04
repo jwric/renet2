@@ -254,7 +254,7 @@ pub fn draw_chat(ui_state: &mut UiState, state: &mut AppState, usernames: HashMa
 }
 
 fn create_renet_client(username: String, server_addr: SocketAddr) -> (RenetClient, NetcodeClientTransport) {
-    let connection_config = ConnectionConfig::default();
+    let connection_config = ConnectionConfig::test();
     let client = RenetClient::new(connection_config);
 
     let socket = UdpSocket::bind("127.0.0.1:0").unwrap();

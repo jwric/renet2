@@ -68,7 +68,7 @@ fn run_server(steam_client: Client<ClientManager>, single: SingleClient, with_lo
         AccessPermission::Public
     };
 
-    let connection_config = ConnectionConfig::default();
+    let connection_config = ConnectionConfig::test();
     let mut server: RenetServer = RenetServer::new(connection_config);
     let steam_transport_config = SteamServerConfig {
         max_clients: 10,
@@ -141,7 +141,7 @@ fn run_client(steam_client: Client<ClientManager>, single: SingleClient, server_
             thread::sleep(Duration::from_millis(20));
         }
     }
-    let connection_config = ConnectionConfig::default();
+    let connection_config = ConnectionConfig::test();
     let mut client = RenetClient::new(connection_config);
 
     let mut transport = SteamClientTransport::new(&steam_client, &server_steam_id).unwrap();

@@ -44,7 +44,7 @@ fn main() {
 
     // Save connection info
     let client_connection_info = ClientConnectionInfo {
-        native_addr: native_socket.addr().unwrap().to_string().into(),
+        native_addr: native_socket.addr().unwrap().to_string(),
         wt_dest: wt_socket.addr().unwrap().into(),
         cert_hash,
     };
@@ -90,7 +90,7 @@ async fn run_http_server(http_addr: SocketAddr, client_connection_info: ClientCo
 }
 
 fn run_renet_server(mut transport: NetcodeServerTransport) {
-    let mut server: RenetServer = RenetServer::new(ConnectionConfig::default());
+    let mut server: RenetServer = RenetServer::new(ConnectionConfig::test());
 
     let mut received_messages = vec![];
     let mut last_updated = Instant::now();

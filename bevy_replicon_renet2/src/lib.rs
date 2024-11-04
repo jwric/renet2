@@ -48,11 +48,10 @@ use bevy_replicon_renet2::{renet2::ConnectionConfig, RenetChannelsExt, RepliconR
 # let mut app = App::new();
 # app.add_plugins(RepliconPlugins);
 let channels = app.world().resource::<RepliconChannels>();
-let connection_config = ConnectionConfig {
-    server_channels_config: channels.get_server_configs(),
-    client_channels_config: channels.get_client_configs(),
-    ..Default::default()
-};
+let connection_config = ConnectionConfig::new_with_channels(
+    channels.get_server_configs(),
+    channels.get_client_configs(),
+);
 ```
 
 For a full example of how to initialize a server or client see the example in the

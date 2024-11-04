@@ -53,7 +53,7 @@ impl RenetServer {
     /// # Usage
     /// ```
     /// # use renet2::{RenetServer, ConnectionConfig, ServerEvent};
-    /// # let mut server = RenetServer::new(ConnectionConfig::default());
+    /// # let mut server = RenetServer::new(ConnectionConfig::test());
     /// while let Some(event) = server.get_event() {
     ///     match event {
     ///         ServerEvent::ClientConnected { client_id } => {
