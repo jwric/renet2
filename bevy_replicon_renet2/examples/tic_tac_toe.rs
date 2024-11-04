@@ -238,7 +238,7 @@ impl TicTacToePlugin {
                 game_state.set(GameState::InGame);
             }
             Cli::Server { port, symbol } => {
-                let server = RenetServer::new(ConnectionConfig::new_with_channels(
+                let server = RenetServer::new(ConnectionConfig::from_channels(
                     channels.get_server_configs(),
                     channels.get_client_configs(),
                 ));
@@ -260,7 +260,7 @@ impl TicTacToePlugin {
                 commands.spawn(PlayerBundle::server(symbol));
             }
             Cli::Client { port, ip } => {
-                let client = RenetClient::new(ConnectionConfig::new_with_channels(
+                let client = RenetClient::new(ConnectionConfig::from_channels(
                     channels.get_server_configs(),
                     channels.get_client_configs(),
                 ));

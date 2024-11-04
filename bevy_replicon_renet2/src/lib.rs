@@ -48,7 +48,7 @@ use bevy_replicon_renet2::{renet2::ConnectionConfig, RenetChannelsExt, RepliconR
 # let mut app = App::new();
 # app.add_plugins(RepliconPlugins);
 let channels = app.world().resource::<RepliconChannels>();
-let connection_config = ConnectionConfig::new_with_channels(
+let connection_config = ConnectionConfig::from_channels(
     channels.get_server_configs(),
     channels.get_client_configs(),
 );

@@ -31,7 +31,7 @@ pub struct ConnectionConfig {
 
 impl ConnectionConfig {
     /// Makes a new config with default `available_bytes_per_tick`.
-    pub fn new_with_channels(server: Vec<ChannelConfig>, client: Vec<ChannelConfig>) -> Self {
+    pub fn from_channels(server: Vec<ChannelConfig>, client: Vec<ChannelConfig>) -> Self {
         Self {
             // At 60hz this is becomes 28.8 Mbps
             available_bytes_per_tick: 60_000,
@@ -41,13 +41,13 @@ impl ConnectionConfig {
     }
 
     /// Makes a new config with default `available_bytes_per_tick` and the same server and client channels.
-    pub fn new_with_shared_channels(channels: Vec<ChannelConfig>) -> Self {
-        Self::new_with_channels(channels.clone(), channels)
+    pub fn from_shared_channels(channels: Vec<ChannelConfig>) -> Self {
+        Self::from_channels(channels.clone(), channels)
     }
 
     /// Makes a new config for testing purposes.
     pub fn test() -> Self {
-        Self::new_with_shared_channels(DefaultChannel::config())
+        Self::from_shared_channels(DefaultChannel::config())
     }
 }
 

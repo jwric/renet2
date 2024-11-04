@@ -63,7 +63,7 @@ impl SimpleBoxPlugin {
                 commands.spawn(PlayerBundle::new(ClientId::SERVER, Vec2::ZERO, LIME.into()));
             }
             Cli::Server { port } => {
-                let server = RenetServer::new(ConnectionConfig::new_with_channels(
+                let server = RenetServer::new(ConnectionConfig::from_channels(
                     channels.get_server_configs(),
                     channels.get_client_configs(),
                 ));
@@ -94,7 +94,7 @@ impl SimpleBoxPlugin {
                 commands.spawn(PlayerBundle::new(ClientId::SERVER, Vec2::ZERO, LIME.into()));
             }
             Cli::Client { port, ip } => {
-                let client = RenetClient::new(ConnectionConfig::new_with_channels(
+                let client = RenetClient::new(ConnectionConfig::from_channels(
                     channels.get_server_configs(),
                     channels.get_client_configs(),
                 ));
