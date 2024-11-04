@@ -1,7 +1,5 @@
 # Renet2
 
-[![Latest version](https://img.shields.io/crates/v/renet2.svg)](https://crates.io/crates/renet2)
-[![Documentation](https://docs.rs/renet2/badge.svg)](https://docs.rs/renet2)
 ![MIT](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Apache](https://img.shields.io/badge/license-Apache-blue.svg)
 
