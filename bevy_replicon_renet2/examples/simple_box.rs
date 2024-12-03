@@ -48,8 +48,8 @@ impl Plugin for SimpleBoxPlugin {
             .add_systems(
                 Update,
                 (
-                    Self::apply_movement.run_if(has_authority),      // Runs only on the server or a single player.
-                    Self::handle_connections.run_if(server_running), // Runs only on the server.
+                    Self::apply_movement.run_if(server_or_singleplayer), // Runs only on the server or a single player.
+                    Self::handle_connections.run_if(server_running),     // Runs only on the server.
                     (Self::draw_boxes, Self::read_input),
                 ),
             );
@@ -83,13 +83,13 @@ impl SimpleBoxPlugin {
                 commands.insert_resource(server);
                 commands.insert_resource(transport);
 
-                commands.spawn(TextBundle::from_section(
-                    "Server",
-                    TextStyle {
+                commands.spawn((
+                    Text::new("Server"),
+                    TextFont {
                         font_size: 30.0,
-                        color: Color::WHITE,
                         ..default()
                     },
+                    TextColor(Color::WHITE),
                 ));
                 commands.spawn(PlayerBundle::new(ClientId::SERVER, Vec2::ZERO, LIME.into()));
             }
@@ -115,13 +115,13 @@ impl SimpleBoxPlugin {
                 commands.insert_resource(client);
                 commands.insert_resource(transport);
 
-                commands.spawn(TextBundle::from_section(
-                    format!("Client: {client_id:?}"),
-                    TextStyle {
+                commands.spawn((
+                    Text::new(format!("Client: {client_id:?}")),
+                    TextFont {
                         font_size: 30.0,
-                        color: Color::WHITE,
                         ..default()
                     },
+                    TextColor(Color::WHITE),
                 ));
             }
         }
@@ -130,7 +130,7 @@ impl SimpleBoxPlugin {
     }
 
     fn spawn_camera(mut commands: Commands) {
-        commands.spawn(Camera2dBundle::default());
+        commands.spawn(Camera2d::default());
     }
 
     /// Logs server events and spawns a new player whenever a client connects.
@@ -154,7 +154,11 @@ impl SimpleBoxPlugin {
 
     fn draw_boxes(mut gizmos: Gizmos, players: Query<(&PlayerPosition, &PlayerColor)>) {
         for (position, color) in &players {
-            gizmos.rect(Vec3::new(position.x, position.y, 0.0), Quat::IDENTITY, Vec2::ONE * 50.0, color.0);
+            gizmos.rect(
+                Isometry3d::new(Vec3::new(position.x, position.y, 0.0), Quat::IDENTITY),
+                Vec2::ONE * 50.0,
+                color.0,
+            );
         }
     }
 
@@ -192,7 +196,7 @@ impl SimpleBoxPlugin {
             info!("received event {event:?} from {client_id:?}");
             for (player, mut position) in &mut players {
                 if *client_id == player.0 {
-                    **position += event.0 * time.delta_seconds() * MOVE_SPEED;
+                    **position += event.0 * time.delta_secs() * MOVE_SPEED;
                 }
             }
         }

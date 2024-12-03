@@ -1,8 +1,8 @@
 #[cfg(feature = "transport")]
 use crate::renet2::transport::NetcodeClientTransport;
-use crate::renet2::RenetClient;
 #[cfg(feature = "transport")]
 use crate::transport::NetcodeClientPlugin;
+use crate::{renet2::RenetClient, ClientIdExt};
 use bevy::prelude::*;
 use bevy_renet2::{RenetClientPlugin, RenetReceive, RenetSend};
 use bevy_replicon::prelude::*;
@@ -52,7 +52,7 @@ impl RepliconRenetClientPlugin {
         // In renet only transport knows the ID.
         // TODO: Pending renet issue https://github.com/lucaspoffo/renet/issues/153
         #[cfg(feature = "transport")]
-        let client_id = Some(ClientId::new(transport.client_id().raw()));
+        let client_id = Some(transport.client_id().to_replicon());
         #[cfg(not(feature = "transport"))]
         let client_id = None;
 

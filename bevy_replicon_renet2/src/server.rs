@@ -1,6 +1,6 @@
-use crate::renet2::RenetServer;
 #[cfg(feature = "transport")]
 use crate::transport::NetcodeServerPlugin;
+use crate::{renet2::RenetServer, ClientIdExt, Renet2ClientIdExt};
 use bevy::prelude::*;
 use bevy_renet2::{RenetReceive, RenetSend, RenetServerPlugin};
 use bevy_replicon::prelude::*;
@@ -17,7 +17,7 @@ impl Plugin for RepliconRenetServerPlugin {
                 (
                     (
                         Self::set_running.run_if(resource_added::<RenetServer>),
-                        Self::set_stopped.run_if(resource_removed::<RenetServer>()),
+                        Self::set_stopped.run_if(resource_removed::<RenetServer>),
                         Self::receive_packets.run_if(resource_exists::<RenetServer>),
                     )
                         .chain()
@@ -53,10 +53,10 @@ impl RepliconRenetServerPlugin {
         for event in renet_server_events.read() {
             let replicon_event = match event {
                 crate::renet2::ServerEvent::ClientConnected { client_id } => ServerEvent::ClientConnected {
-                    client_id: ClientId::new(client_id.raw()),
+                    client_id: client_id.to_replicon(),
                 },
                 crate::renet2::ServerEvent::ClientDisconnected { client_id, reason } => ServerEvent::ClientDisconnected {
-                    client_id: ClientId::new(client_id.raw()),
+                    client_id: client_id.to_replicon(),
                     reason: reason.to_string(),
                 },
             };
@@ -71,11 +71,11 @@ impl RepliconRenetServerPlugin {
         mut renet_server: ResMut<RenetServer>,
         mut replicon_server: ResMut<RepliconServer>,
     ) {
-        for client_id in connected_clients.iter().copied() {
-            let renet_client_id = crate::renet2::ClientId::from_raw(client_id.get());
+        for connected in connected_clients.iter().copied() {
+            let renet_client_id = connected.id().to_renet2();
             for channel_id in 0..channels.client_channels().len() as u8 {
                 while let Some(message) = renet_server.receive_message(renet_client_id, channel_id) {
-                    replicon_server.insert_received(client_id, channel_id, message);
+                    replicon_server.insert_received(connected.id(), channel_id, message);
                 }
             }
         }
@@ -83,7 +83,7 @@ impl RepliconRenetServerPlugin {
 
     fn send_packets(mut renet_server: ResMut<RenetServer>, mut replicon_server: ResMut<RepliconServer>) {
         for (client_id, channel_id, message) in replicon_server.drain_sent() {
-            let client_id = crate::renet2::ClientId::from_raw(client_id.get());
+            let client_id = client_id.to_renet2();
             renet_server.send_message(client_id, channel_id, message)
         }
     }

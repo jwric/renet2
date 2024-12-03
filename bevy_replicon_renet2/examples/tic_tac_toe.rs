@@ -67,7 +67,7 @@ impl Plugin for TicTacToePlugin {
                     Self::start_game.run_if(client_connected).run_if(any_component_added::<Player>), // Wait until client replicates players before starting the game.
                     (
                         Self::handle_interactions.run_if(local_player_turn),
-                        Self::spawn_symbols.run_if(has_authority),
+                        Self::spawn_symbols.run_if(server_or_singleplayer),
                         Self::init_symbols,
                         Self::advance_turn.run_if(any_component_added::<CellIndex>),
                         Self::show_turn_symbol.run_if(resource_changed::<CurrentTurn>),
@@ -90,7 +90,7 @@ const SYMBOL_SECTION: usize = 1;
 
 impl TicTacToePlugin {
     fn setup_ui(mut commands: Commands, symbol_font: Res<SymbolFont>) {
-        commands.spawn(Camera2dBundle::default());
+        commands.spawn(Camera2d::default());
 
         const LINES_COUNT: usize = GRID_SIZE + 1;
 
@@ -104,32 +104,30 @@ impl TicTacToePlugin {
             let position = -BOARD_SIZE / 2.0 + line as f32 * (CELL_SIZE + LINE_THICKNESS) + LINE_THICKNESS / 2.0;
 
             // Horizontal
-            commands.spawn(SpriteBundle {
-                sprite: Sprite {
+            commands.spawn((
+                Sprite {
                     color: BOARD_COLOR,
                     ..Default::default()
                 },
-                transform: Transform {
+                Transform {
                     translation: Vec3::Y * position,
                     scale: Vec3::new(BOARD_SIZE, LINE_THICKNESS, 1.0),
                     ..Default::default()
                 },
-                ..Default::default()
-            });
+            ));
 
             // Vertical
-            commands.spawn(SpriteBundle {
-                sprite: Sprite {
+            commands.spawn((
+                Sprite {
                     color: BOARD_COLOR,
                     ..Default::default()
                 },
-                transform: Transform {
+                Transform {
                     translation: Vec3::X * position,
                     scale: Vec3::new(LINE_THICKNESS, BOARD_SIZE, 1.0),
                     ..Default::default()
                 },
-                ..Default::default()
-            });
+            ));
         }
 
         const BUTTON_SIZE: f32 = CELL_SIZE / 1.2;
@@ -139,86 +137,72 @@ impl TicTacToePlugin {
         const FONT_SIZE: f32 = 40.0;
 
         commands
-            .spawn(NodeBundle {
-                style: Style {
-                    width: Val::Percent(100.0),
-                    height: Val::Percent(100.0),
-                    align_items: AlignItems::Center,
-                    justify_content: JustifyContent::Center,
-                    ..Default::default()
-                },
+            .spawn(Node {
+                width: Val::Percent(100.0),
+                height: Val::Percent(100.0),
+                align_items: AlignItems::Center,
+                justify_content: JustifyContent::Center,
                 ..Default::default()
             })
             .with_children(|parent| {
                 parent
-                    .spawn(NodeBundle {
-                        style: Style {
-                            flex_direction: FlexDirection::Column,
-                            width: Val::Px(BOARD_SIZE - LINE_THICKNESS),
-                            height: Val::Px(BOARD_SIZE - LINE_THICKNESS),
-                            ..Default::default()
-                        },
+                    .spawn(Node {
+                        flex_direction: FlexDirection::Column,
+                        width: Val::Px(BOARD_SIZE - LINE_THICKNESS),
+                        height: Val::Px(BOARD_SIZE - LINE_THICKNESS),
                         ..Default::default()
                     })
                     .with_children(|parent| {
                         parent
                             .spawn((
                                 GridNode,
-                                NodeBundle {
-                                    style: Style {
-                                        display: Display::Grid,
-                                        grid_template_columns: vec![GridTrack::auto(); GRID_SIZE],
-                                        ..Default::default()
-                                    },
+                                Node {
+                                    display: Display::Grid,
+                                    grid_template_columns: vec![GridTrack::auto(); GRID_SIZE],
                                     ..Default::default()
                                 },
                             ))
                             .with_children(|parent| {
                                 for _ in 0..GRID_SIZE * GRID_SIZE {
-                                    parent.spawn(ButtonBundle {
-                                        style: Style {
+                                    parent.spawn((
+                                        Node {
                                             width: Val::Px(BUTTON_SIZE),
                                             height: Val::Px(BUTTON_SIZE),
                                             margin: UiRect::all(Val::Px(BUTTON_MARGIN)),
                                             ..Default::default()
                                         },
-                                        background_color: BACKGROUND_COLOR.into(),
-                                        ..Default::default()
-                                    });
+                                        BackgroundColor(BACKGROUND_COLOR.into()),
+                                        Button,
+                                    ));
                                 }
                             });
 
                         parent
-                            .spawn(NodeBundle {
-                                style: Style {
-                                    margin: UiRect::top(Val::Px(20.0)),
-                                    justify_content: JustifyContent::Center,
-                                    ..Default::default()
-                                },
+                            .spawn(Node {
+                                margin: UiRect::top(Val::Px(20.0)),
+                                justify_content: JustifyContent::Center,
                                 ..Default::default()
                             })
                             .with_children(|parent| {
-                                parent.spawn((
-                                    TextBundle::from_sections([
-                                        TextSection::new(
-                                            String::new(),
-                                            TextStyle {
-                                                font_size: FONT_SIZE,
-                                                color: TEXT_COLOR,
-                                                ..Default::default()
-                                            },
-                                        ),
-                                        TextSection::new(
-                                            String::new(),
-                                            TextStyle {
-                                                font: symbol_font.0.clone(),
-                                                font_size: FONT_SIZE,
-                                                ..Default::default()
-                                            },
-                                        ),
-                                    ]),
-                                    BottomText,
-                                ));
+                                parent
+                                    .spawn((
+                                        Text::default(),
+                                        TextFont {
+                                            font_size: FONT_SIZE,
+                                            ..default()
+                                        },
+                                        TextColor(TEXT_COLOR),
+                                        BottomText,
+                                    ))
+                                    .with_child((
+                                        Text::default(),
+                                        TextFont {
+                                            font: symbol_font.0.clone(),
+                                            font_size: FONT_SIZE,
+                                            ..default()
+                                        },
+                                        TextColor(TEXT_COLOR),
+                                    ));
                             });
                     });
             });
@@ -287,37 +271,40 @@ impl TicTacToePlugin {
     }
 
     fn show_turn_text(mut bottom_text: Query<&mut Text, With<BottomText>>) {
-        bottom_text.single_mut().sections[0].value = "Current turn: ".into();
+        bottom_text.single_mut().0 = "Current turn: ".into();
     }
 
-    fn show_turn_symbol(mut bottom_text: Query<&mut Text, With<BottomText>>, current_turn: Res<CurrentTurn>) {
-        let symbol_section = &mut bottom_text.single_mut().sections[SYMBOL_SECTION];
-        symbol_section.value = current_turn.glyph().into();
-        symbol_section.style.color = current_turn.color();
+    fn show_turn_symbol(bottom_text: Query<Entity, With<BottomText>>, mut writer: TextUiWriter, current_turn: Res<CurrentTurn>) {
+        let text_entity = bottom_text.single();
+        *writer.get_text(text_entity, SYMBOL_SECTION).unwrap() = current_turn.glyph().into();
+        *writer.get_color(text_entity, SYMBOL_SECTION).unwrap() = current_turn.color().into();
     }
 
-    fn show_disconnected_text(mut bottom_text: Query<&mut Text, With<BottomText>>) {
-        let sections = &mut bottom_text.single_mut().sections;
-        sections[TEXT_SECTION].value = "Client disconnected".into();
-        sections[SYMBOL_SECTION].value.clear();
+    fn show_disconnected_text(bottom_text: Query<Entity, With<BottomText>>, mut writer: TextUiWriter) {
+        let text_entity = bottom_text.single();
+        *writer.get_text(text_entity, TEXT_SECTION).unwrap() = "Client disconnected".into();
+        writer.get_text(text_entity, SYMBOL_SECTION).unwrap().clear();
     }
 
-    fn show_winner_text(mut bottom_text: Query<&mut Text, With<BottomText>>) {
-        bottom_text.single_mut().sections[TEXT_SECTION].value = "Winner: ".into();
+    fn show_winner_text(bottom_text: Query<Entity, With<BottomText>>, mut writer: TextUiWriter) {
+        let text_entity = bottom_text.single();
+        *writer.get_text(text_entity, TEXT_SECTION).unwrap() = "Winner: ".into();
     }
 
-    fn show_tie_text(mut bottom_text: Query<&mut Text, With<BottomText>>) {
-        let sections = &mut bottom_text.single_mut().sections;
-        sections[TEXT_SECTION].value = "Tie".into();
-        sections[SYMBOL_SECTION].value.clear();
+    fn show_tie_text(bottom_text: Query<Entity, With<BottomText>>, mut writer: TextUiWriter) {
+        let text_entity = bottom_text.single();
+        *writer.get_text(text_entity, TEXT_SECTION).unwrap() = "Tie".into();
+        writer.get_text(text_entity, SYMBOL_SECTION).unwrap().clear();
     }
 
-    fn show_connecting_text(mut bottom_text: Query<&mut Text, With<BottomText>>) {
-        bottom_text.single_mut().sections[TEXT_SECTION].value = "Connecting".into();
+    fn show_connecting_text(bottom_text: Query<Entity, With<BottomText>>, mut writer: TextUiWriter) {
+        let text_entity = bottom_text.single();
+        *writer.get_text(text_entity, TEXT_SECTION).unwrap() = "Connecting".into();
     }
 
-    fn show_waiting_player_text(mut bottom_text: Query<&mut Text, With<BottomText>>) {
-        bottom_text.single_mut().sections[TEXT_SECTION].value = "Waiting player".into();
+    fn show_waiting_player_text(bottom_text: Query<Entity, With<BottomText>>, mut writer: TextUiWriter) {
+        let text_entity = bottom_text.single();
+        *writer.get_text(text_entity, TEXT_SECTION).unwrap() = "Waiting player".into();
     }
 
     /// Waits for client to connect to start the game or disconnect to finish it.
@@ -424,13 +411,14 @@ impl TicTacToePlugin {
 
             commands.entity(button_entity).remove::<Interaction>().add_child(symbol_entity);
 
-            commands.entity(symbol_entity).insert(TextBundle::from_section(
-                symbol.glyph(),
-                TextStyle {
+            commands.entity(symbol_entity).insert((
+                Text::new(symbol.glyph()),
+                TextFont {
                     font: symbol_font.0.clone(),
                     font_size: 80.0,
-                    color: symbol.color(),
+                    ..default()
                 },
+                TextColor(symbol.color()),
             ));
         }
     }

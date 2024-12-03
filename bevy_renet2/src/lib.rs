@@ -111,7 +111,7 @@ pub fn client_should_update() -> impl Condition<()> {
     // (just_disconnected || !disconnected) && exists<RenetClient>
     IntoSystem::into_system(
         client_just_disconnected
-            .or_else(not(client_disconnected))
-            .and_then(resource_exists::<RenetClient>),
+            .or(not(client_disconnected))
+            .and(resource_exists::<RenetClient>),
     )
 }
