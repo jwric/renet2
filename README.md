@@ -238,4 +238,5 @@ https://user-images.githubusercontent.com/35241085/175834010-b1eafd77-7ea2-47dc-
 
 | bevy | renet2 repository |
 |------|-------------------|
+| 0.15 | tag 0.0.7         |
 | 0.14 | tag 0.0.5         |
