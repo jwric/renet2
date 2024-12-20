@@ -6,13 +6,13 @@
     - `rustls`: 0.21 -> 0.23.5
     - `quinn`: 0.10 -> 0.11.6
     - `rcgen`: 0.12 -> 0.13
-    - `h3-quinn`/`h3-webtransport`/`h3`: h3-v0.0.4 -> h3-v0.0.6
 - Split `TransportSocket` into separate `ServerSocket`/`ClientSocket` traits.
 - Add `webtransport_is_available()`/`webtransport_is_available_with_cert_hashes()` helpers for WASM clients.
 - Add support for reliable transport sockets.
     - Add `TransportSocket::is_reliable`. It's true for in-memory sockets and WebSockets, and false for UDP and WebTransport.
     - Add `has_reliable_socket` argument to `RenetClient::new`
 - Add WebSocket server and client. The client is WASM-only.
+- Replace `h3` dependency with `wtransport` for WebTransport backend.
 
 ## 0.0.7 - 12/02/24
 

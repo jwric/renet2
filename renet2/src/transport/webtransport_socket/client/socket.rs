@@ -171,8 +171,8 @@ impl WebTransportClient {
                 .clone()
                 .try_into()
                 .expect("could not convert server destination to url");
-            let connect_msg_ser = serde_json::to_string(&connection_req).expect("could not serialize connect msg");
-            url.query_pairs_mut().append_pair(HTTP_CONNECT_REQ, connect_msg_ser.as_str());
+            let connect_msg_ser = urlencoding::encode_binary(&connection_req);
+            url.set_query(Some(format!("{}={}", HTTP_CONNECT_REQ, &connect_msg_ser).as_str()));
 
             // Set up WebTransport.
             let web_transport = match Self::init_web_transport(url.as_str(), options).await {

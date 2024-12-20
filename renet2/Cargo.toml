@@ -41,22 +41,21 @@ wt_server_transport = [
     "transport",
     "dep:crossbeam",
     "dep:anyhow",
+    "dep:wtransport",
+
     "dep:rustls",
     "dep:rustls-pki-types",
     "dep:rcgen",
     "dep:quinn",
-    "dep:h3-quinn",
-    "dep:h3-webtransport",
-    "dep:tokio",
     "dep:http",
+
+    "dep:tokio",
     "dep:futures",
-    "dep:h3",
     "dep:time",
     #"dep:x509-cert",
     #"dep:spki",
     #"dep:base64",
-    "dep:serde_json",
-    "dep:form_urlencoded",
+    "dep:urlencoding",
 ]
 
 # Enable the WebTransport client transport (WASM only)
@@ -71,14 +70,16 @@ wt_client_transport = [
     "dep:send_wrapper",
     "dep:getrandom",
     "dep:web-sys",
-    "dep:serde_json"
+    "dep:urlencoding",
 ]
 
 # Enable the WebSocket server transport
 ws_server_transport = [
     "transport",
     "dep:tungstenite",
-    "dep:tokio-tungstenite"
+    "dep:tokio-tungstenite",
+    "dep:http",
+    "dep:urlencoding",
 ]
 
 # Enable rustls acceptors for WebSocket server transports.
@@ -99,7 +100,8 @@ ws_client_transport = [
     "dep:web-sys",
     "dep:serde_json",
     "dep:futures-util",
-    "dep:futures-channel"
+    "dep:futures-channel",
+    "dep:urlencoding",
 ]
 
 [dependencies]
@@ -119,28 +121,23 @@ crossbeam = { version = "0.8", optional = true }
 # WebTransport shared
 futures = { version = "0.3", optional = true }
 serde_json = { version = "1.0", optional = true }
+urlencoding = { version = "2.1", optional = true }
 
 # WebTransport server
 anyhow = { version = "1.0", optional = true }
+wtransport = { version = "0.5", optional = true, default-features = false, features = ["quinn", "self-signed"] }
 rustls = { version = "0.23.5", optional = true }  #locked to 0.23.5 until quinn updates
 rustls-pki-types = { version = "1.7", optional = true }  #locked to 1.7 until quinn updates
 rcgen = { version = "0.13", optional = true }
 quinn = { version = "0.11.6", optional = true, default-features = false, features = [
-    "runtime-tokio",
     "rustls-ring",
 ] }
-h3-quinn = { tag = "h3-v0.0.6", optional = true, git = "https://github.com/hyperium/h3" }
-h3-webtransport = { version = "0.1", tag = "h3-v0.0.6", optional = true, git = "https://github.com/hyperium/h3" }
-tokio = { version = "1.32", optional = true, features = ["full"] }
 http = { version = "1.0", optional = true }
-h3 = { tag = "h3-v0.0.6", optional = true, git = "https://github.com/hyperium/h3", features = [
-    "i-implement-a-third-party-backend-and-opt-into-breaking-changes"
-] }
+tokio = { version = "1.32", optional = true, features = ["full"] }
 time = { version = "0.3", optional = true }
 #x509-cert = { version = "0.2", optional = true }
 #spki = { version = "0.7", optional = true, features = ["fingerprint"] }
 #base64 = { version = "0.22", optional = true }
-form_urlencoded = { version = "1.2", optional = true }
 
 # WebTransport client
 async-channel = { version = "2.2", optional = true }

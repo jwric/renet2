@@ -681,21 +681,13 @@ fn extract_client_connection_req(uri: &Uri) -> Result<Vec<u8>, Error> {
         log::trace!("invalid uri query, dropping connection request...");
         return Err(Error::msg("invalid uri query, dropping connection request..."));
     };
-    let mut query_elements_iterator = form_urlencoded::parse(query.as_bytes());
-    let Some((key, connection_req)) = query_elements_iterator.next() else {
+    let Some(encoded) = query.split_once(HTTP_CONNECT_REQ).and_then(|(_, r)| r.strip_prefix("=")) else {
         log::trace!("invalid uri query (missing req), dropping connection request...");
         return Err(Error::msg("invalid uri query (missing req), dropping connection request..."));
     };
-    if key != HTTP_CONNECT_REQ {
-        log::trace!("invalid uri query (bad key), dropping connection request...");
-        return Err(Error::msg("invalid uri query (bad key), dropping connection request..."));
-    }
-    let Ok(connection_req) = serde_json::de::from_str::<Vec<u8>>(&connection_req) else {
-        log::trace!("invalid uri query (bad req), dropping connection request...");
-        return Err(Error::msg("invalid uri query (bad req), dropping connection request..."));
-    };
+    let connection_req = urlencoding::decode_binary(encoded.as_bytes());
 
-    Ok(connection_req)
+    Ok(connection_req.into())
 }
 
 /// Makes a websocket url: `{ws, wss}://[ip:port]/ws`.

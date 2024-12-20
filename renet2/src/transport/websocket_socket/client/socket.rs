@@ -93,8 +93,8 @@ impl WebSocketClient {
             };
 
             // Build URL with connection request.
-            let connect_msg_ser = serde_json::to_string(&connection_req).expect("could not serialize connect msg");
-            server_url.query_pairs_mut().append_pair(HTTP_CONNECT_REQ, connect_msg_ser.as_str());
+            let connect_msg_ser = urlencoding::encode_binary(&connection_req);
+            server_url.set_query(Some(format!("{}={}", HTTP_CONNECT_REQ, &connect_msg_ser).as_str()));
 
             let Ok(ws) = WebSocket::new(server_url.as_str()) else {
                 warn!(
