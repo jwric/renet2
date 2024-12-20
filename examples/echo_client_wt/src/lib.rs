@@ -31,7 +31,7 @@ impl ChatApplication {
             .unwrap();
 
         // Setup
-        let connection_config = ConnectionConfig::default();
+        let connection_config = ConnectionConfig::test();
         let client = RenetClient::new(connection_config);
         let current_time = SystemTime::now().duration_since(UNIX_EPOCH).unwrap();
         let client_auth = ClientAuthentication::Unsecure {

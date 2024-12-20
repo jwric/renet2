@@ -1,6 +1,6 @@
 use anyhow::Error;
 use rcgen::{CertificateParams, DistinguishedName, DnType, IsCa, KeyIdMethod, SanType, PKCS_ECDSA_P256_SHA256};
-use rustls::{Certificate, PrivateKey};
+use rustls_pki_types::{CertificateDer, PrivateKeyDer};
 use time::{ext::NumericalDuration, OffsetDateTime};
 
 use std::path::PathBuf;
@@ -10,10 +10,13 @@ use crate::transport::{ServerCertHash, WebServerDestination};
 /// Generates a self-signed certificate for use in `WebTransportConfig`.
 ///
 /// The [`PrivateKey`] should not be publicized.
-pub fn generate_self_signed_certificate(params: CertificateParams) -> Result<(Certificate, PrivateKey), rcgen::Error> {
-    let rc_certificate = rcgen::Certificate::from_params(params)?;
-    let certificate = Certificate(rc_certificate.serialize_der()?);
-    let privkey = PrivateKey(rc_certificate.serialize_private_key_der());
+pub fn generate_self_signed_certificate(
+    params: CertificateParams,
+) -> Result<(CertificateDer<'static>, PrivateKeyDer<'static>), rcgen::Error> {
+    let keypair = rcgen::KeyPair::generate_for(&PKCS_ECDSA_P256_SHA256)?;
+    let rc_certificate = params.self_signed(&keypair)?;
+    let certificate = rc_certificate.der().clone();
+    let privkey = PrivateKeyDer::Pkcs8(keypair.serialize_der().into());
 
     Ok((certificate, privkey))
 }
@@ -27,29 +30,29 @@ pub fn generate_self_signed_certificate(params: CertificateParams) -> Result<(Ce
 /// The [`PrivateKey`] should not be publicized.
 pub fn generate_self_signed_certificate_opinionated<T: Into<WebServerDestination>>(
     subject_alt_names: impl IntoIterator<Item = T>,
-) -> Result<(Certificate, PrivateKey), rcgen::Error> {
+) -> Result<(CertificateDer<'static>, PrivateKeyDer<'static>), rcgen::Error> {
     let not_before = OffsetDateTime::now_utc().saturating_sub(1.hours()); //adjust for client system time variance
     let not_after = not_before.saturating_add(2.weeks().saturating_sub(1.minutes())); //less than 2 weeks
     let mut distinguished_name = DistinguishedName::new();
     distinguished_name.push(DnType::CommonName, "renet2 self signed cert");
 
-    let subject_alt_names = subject_alt_names
-        .into_iter()
-        .map(|d| match d.into() {
+    let mut subject_alt_names_collected: Vec<SanType> = vec![];
+    for dest in subject_alt_names.into_iter() {
+        let san_type = match dest.into() {
             WebServerDestination::Addr(addr) => SanType::IpAddress(addr.ip()),
             WebServerDestination::Url(url) => match url.domain() {
-                Some(domain) => SanType::DnsName(domain.into()),
-                None => SanType::URI(url.into()),
+                Some(domain) => SanType::DnsName(domain.try_into()?),
+                None => SanType::URI(String::from(url).try_into()?),
             },
-        })
-        .collect::<Vec<_>>();
+        };
+        subject_alt_names_collected.push(san_type);
+    }
 
     let mut params = CertificateParams::default(); //the params is `non_exhaustive` so we need to default construct
-    params.alg = &PKCS_ECDSA_P256_SHA256;
     params.not_before = not_before;
     params.not_after = not_after;
     params.serial_number = None;
-    params.subject_alt_names = subject_alt_names;
+    params.subject_alt_names = subject_alt_names_collected;
     params.distinguished_name = distinguished_name;
     params.is_ca = IsCa::NoCa;
     params.key_usages = Vec::new();
@@ -57,7 +60,6 @@ pub fn generate_self_signed_certificate_opinionated<T: Into<WebServerDestination
     params.name_constraints = None;
     params.crl_distribution_points = Vec::new();
     params.custom_extensions = Vec::new();
-    params.key_pair = None;
     params.use_authority_key_identifier_extension = false;
     params.key_identifier_method = KeyIdMethod::Sha256;
 
@@ -67,9 +69,9 @@ pub fn generate_self_signed_certificate_opinionated<T: Into<WebServerDestination
 /// Loads a certificate and private key from the file system.
 ///
 /// The certificate and key must be DER encoded.
-pub fn get_certificate_and_key_from_files(cert: PathBuf, key: PathBuf) -> Result<(Certificate, PrivateKey), Error> {
-    let cert = Certificate(std::fs::read(cert)?);
-    let key = PrivateKey(std::fs::read(key)?);
+pub fn get_certificate_and_key_from_files(cert: PathBuf, key: PathBuf) -> Result<(CertificateDer<'static>, PrivateKeyDer<'static>), Error> {
+    let cert = CertificateDer::from(std::fs::read(cert)?);
+    let key = PrivateKeyDer::Pkcs8(std::fs::read(key)?.into());
     Ok((cert, key))
 }
 
@@ -92,7 +94,7 @@ fn _spki_fingerprint_base64(cert: &Certificate) -> Option<String> {
 */
 
 /// Gets a [`ServerCertHash`] from a [`Certificate`].
-pub fn get_server_cert_hash(cert: &Certificate) -> ServerCertHash {
-    let hash = hmac_sha256::Hash::hash(&cert.0);
+pub fn get_server_cert_hash(cert: &CertificateDer<'_>) -> ServerCertHash {
+    let hash = hmac_sha256::Hash::hash(cert.as_ref());
     ServerCertHash { hash }
 }

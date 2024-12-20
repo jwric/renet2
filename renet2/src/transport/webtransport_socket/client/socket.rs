@@ -324,11 +324,13 @@ fn handle_promise(promise: Promise) {
 
     // SAFETY: WASM is single-threaded, so `SendWrapper` can be derefed safely.
     let nothing_callback_handle = unsafe {
+        #[allow(static_mut_refs)]
         if GET_NOTHING_CALLBACK_HANDLE.is_none() {
             let cached_callback = Closure::new(|_| {});
             GET_NOTHING_CALLBACK_HANDLE = Some(SendWrapper::new(cached_callback));
         }
 
+        #[allow(static_mut_refs)]
         GET_NOTHING_CALLBACK_HANDLE.as_deref().unwrap()
     };
 

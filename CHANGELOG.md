@@ -2,6 +2,11 @@
 
 ## WIP
 
+- Update `renet2` sub-crate dependencies.
+    - `rustls`: 0.21 -> 0.23.5
+    - `quinn`: 0.10 -> 0.11.6
+    - `rcgen`: 0.12 -> 0.13
+    - `h3-quinn`/`h3-webtransport`/`h3`: h3-v0.0.4 -> h3-v0.0.6
 
 ## 0.0.7 - 12/02/24
 
