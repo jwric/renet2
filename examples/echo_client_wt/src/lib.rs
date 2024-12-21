@@ -1,7 +1,6 @@
 use renet2::{
     transport::{
-        webtransport_is_available_with_cert_hashes,
-        CongestionControl, NetcodeClientTransport, ServerCertHash, WebServerDestination, WebTransportClient, WebTransportClientConfig,
+        webtransport_is_available_with_cert_hashes, ClientSocket, CongestionControl, NetcodeClientTransport, ServerCertHash, WebServerDestination, WebSocketClient, WebSocketClientConfig, WebTransportClient, WebTransportClientConfig
     },
     ConnectionConfig, DefaultChannel, RenetClient,
 };
@@ -27,38 +26,63 @@ impl ChatApplication {
 
         // Wait for renet2 server connection info.
         tracing::info!("getting server info");
-        let (server_dest, server_cert_hash) = reqwest::get("http://127.0.0.1:4433/wasm")
+        let (wt_server_dest, wt_server_cert_hash, ws_server_url) = reqwest::get("http://127.0.0.1:4433/wasm")
             .await
             .unwrap()
-            .json::<(WebServerDestination, ServerCertHash)>()
+            .json::<(WebServerDestination, ServerCertHash, url::Url)>()
             .await
             .unwrap();
 
         // Setup
         tracing::info!("setting up client");
 
-        if !webtransport_is_available_with_cert_hashes() {
-            tracing::warn!("webtransport not supported on this platform");
-        }
-
-        let connection_config = ConnectionConfig::test();
-        let client = RenetClient::new(connection_config);
         let current_time = SystemTime::now().duration_since(UNIX_EPOCH).unwrap();
-        let client_auth = ClientAuthentication::Unsecure {
-            client_id: current_time.as_millis() as u64,
-            protocol_id: 0,
-            socket_id: 1, //Webtransport socket id is 1 in this example
-            server_addr: server_dest.clone().into(),
-            user_data: None,
-        };
-        let socket_config = WebTransportClientConfig {
-            server_dest: server_dest.into(),
-            congestion_control: CongestionControl::default(),
-            server_cert_hashes: Vec::from([server_cert_hash]),
-        };
-        let socket = WebTransportClient::new(socket_config);
+        let connection_config = ConnectionConfig::test();
+        let (client, transport) = match webtransport_is_available_with_cert_hashes() {
+            true => {
+                tracing::info!("setting up webtransport client (server = {:?})", wt_server_dest);
+                let client_auth = ClientAuthentication::Unsecure {
+                    client_id: current_time.as_millis() as u64,
+                    protocol_id: 0,
+                    socket_id: 1, //WebTransport socket id is 1 in this example
+                    server_addr: wt_server_dest.clone().into(),
+                    user_data: None,
+                };
+                let socket_config = WebTransportClientConfig {
+                    server_dest: wt_server_dest.into(),
+                    congestion_control: CongestionControl::default(),
+                    server_cert_hashes: Vec::from([wt_server_cert_hash]),
+                };
+                let socket = WebTransportClient::new(socket_config);
 
-        let transport: NetcodeClientTransport = NetcodeClientTransport::new(current_time, client_auth, socket).unwrap();
+                let client = RenetClient::new(connection_config, socket.is_reliable());
+                let transport = NetcodeClientTransport::new(current_time, client_auth, socket).unwrap();
+
+                (client, transport)
+            }
+            false => {
+                tracing::warn!("webtransport with cert hashes is not supported on this platform, falling back \
+                    to websockets");
+                tracing::info!("setting up websocket client (server = {:?})", ws_server_url.as_str());
+                let socket_config = WebSocketClientConfig {
+                    server_url: ws_server_url,
+                };
+                let server_addr = socket_config.server_address().unwrap();
+                let client_auth = ClientAuthentication::Unsecure {
+                    client_id: current_time.as_millis() as u64,
+                    protocol_id: 0,
+                    socket_id: 2, //WebSocket socket id is 2 in this example
+                    server_addr,
+                    user_data: None,
+                };
+
+                let socket = WebSocketClient::new(socket_config).unwrap();
+                let client = RenetClient::new(connection_config, socket.is_reliable());
+                let transport = NetcodeClientTransport::new(current_time, client_auth, socket).unwrap();
+
+                (client, transport)
+            }
+        };
 
         Ok(Self {
             renet_client: client,

@@ -16,7 +16,7 @@ use wasm_bindgen::{prelude::Closure, JsValue};
 use wasm_bindgen_futures::{spawn_local, JsFuture};
 use web_sys::{ReadableStreamDefaultReader, WritableStreamDefaultWriter};
 
-use crate::transport::{NetcodeTransportError, ServerCertHash, TransportSocket, WebServerDestination, WT_CONNECT_REQ};
+use crate::transport::{ClientSocket, NetcodeTransportError, ServerCertHash, WebServerDestination, HTTP_CONNECT_REQ};
 
 use super::bindings::{
     ReadableStreamDefaultReadResult, WebTransport, WebTransportCongestionControl, WebTransportError, WebTransportHash, WebTransportOptions,
@@ -131,7 +131,7 @@ impl WebTransportClientConfig {
     }
 }
 
-/// Implementation of [`TransportSocket`] for WebTransport clients.
+/// Implementation of [`ClientSocket`] for WebTransport clients.
 pub struct WebTransportClient {
     server_url: url::Url,
     server_address: SocketAddr,
@@ -172,7 +172,7 @@ impl WebTransportClient {
                 .try_into()
                 .expect("could not convert server destination to url");
             let connect_msg_ser = serde_json::to_string(&connection_req).expect("could not serialize connect msg");
-            url.query_pairs_mut().append_pair(WT_CONNECT_REQ, connect_msg_ser.as_str());
+            url.query_pairs_mut().append_pair(HTTP_CONNECT_REQ, connect_msg_ser.as_str());
 
             // Set up WebTransport.
             let web_transport = match Self::init_web_transport(url.as_str(), options).await {
@@ -343,9 +343,12 @@ impl std::fmt::Debug for WebTransportClient {
     }
 }
 
-impl TransportSocket for WebTransportClient {
+impl ClientSocket for WebTransportClient {
     fn is_encrypted(&self) -> bool {
         true
+    }
+    fn is_reliable(&self) -> bool {
+        false
     }
 
     fn addr(&self) -> std::io::Result<SocketAddr> {
@@ -360,10 +363,6 @@ impl TransportSocket for WebTransportClient {
     fn close(&mut self) {
         self.disconnect()
     }
-
-    fn connection_denied(&mut self, _: SocketAddr) {}
-    fn connection_accepted(&mut self, _: u64, _: SocketAddr) {}
-    fn disconnect(&mut self, _: SocketAddr) {}
 
     fn preupdate(&mut self) {
         // Check for disconnect.
@@ -406,6 +405,7 @@ impl TransportSocket for WebTransportClient {
         }
         if addr != self.server_address() {
             error!("tried sending packet to invalid WebTransport server {}", addr);
+            self.close();
             return Err(std::io::Error::from(ErrorKind::AddrNotAvailable).into());
         }
 

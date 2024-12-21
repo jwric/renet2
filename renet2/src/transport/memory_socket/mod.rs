@@ -73,6 +73,9 @@ impl MemorySocketChannels {
 /// Set the `encrypted` parameter to `true` if you want to pretend that channels are encrypted. If true, then
 /// netcode **won't** encrypt packets.
 ///
+/// Set the `reliable` to `true` if you want to downgrade all channels to unreliable.
+/// If you don't want to downgrade channels (e.g. for performance testing), set it to false.
+///
 /// Returns `(server socket, client sockets)`. Client addresses are derived from client ids.
 ///
 /// Note that duplicate client ids will be removed.
@@ -80,7 +83,7 @@ impl MemorySocketChannels {
 /// # Panics
 ///
 /// Panics if any client id equals `u16::MAX`.
-pub fn new_memory_sockets(mut client_ids: Vec<u16>, encrypted: bool) -> (MemorySocketServer, Vec<MemorySocketClient>) {
+pub fn new_memory_sockets(mut client_ids: Vec<u16>, encrypted: bool, reliable: bool) -> (MemorySocketServer, Vec<MemorySocketClient>) {
     client_ids.sort_unstable();
     client_ids.dedup();
 
@@ -92,10 +95,10 @@ pub fn new_memory_sockets(mut client_ids: Vec<u16>, encrypted: bool) -> (MemoryS
     for client_id in client_ids {
         let (server_chans, client_chans) = MemorySocketChannels::channel_pair();
         server_channels.push((client_id, server_chans));
-        client_sockets.push(MemorySocketClient::new_with(client_id, client_chans, encrypted));
+        client_sockets.push(MemorySocketClient::new_with(client_id, client_chans, encrypted, reliable));
     }
 
-    let server_socket = MemorySocketServer::new_with(server_channels, encrypted);
+    let server_socket = MemorySocketServer::new_with(server_channels, encrypted, reliable);
 
     (server_socket, client_sockets)
 }

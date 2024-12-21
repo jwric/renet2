@@ -4,19 +4,19 @@ use renetcode2::{ClientAuthentication, DisconnectReason, NetcodeClient, NetcodeE
 
 use crate::{remote_connection::RenetClient, ClientId};
 
-use super::{NetcodeTransportError, TransportSocket};
+use super::{ClientSocket, NetcodeTransportError};
 
 #[derive(Debug)]
 #[cfg_attr(feature = "bevy", derive(bevy_ecs::system::Resource))]
 pub struct NetcodeClientTransport {
-    socket: Box<dyn TransportSocket>,
+    socket: Box<dyn ClientSocket>,
     netcode_client: NetcodeClient,
     buffer: [u8; NETCODE_MAX_PACKET_BYTES],
 }
 
 impl NetcodeClientTransport {
-    /// Makes a new client transport with the given [`TransportSocket`].
-    pub fn new(current_time: Duration, authentication: ClientAuthentication, socket: impl TransportSocket) -> Result<Self, NetcodeError> {
+    /// Makes a new client transport with the given [`ClientSocket`].
+    pub fn new(current_time: Duration, authentication: ClientAuthentication, socket: impl ClientSocket) -> Result<Self, NetcodeError> {
         let netcode_client = NetcodeClient::new(current_time, authentication)?.set_encryption_policy(!socket.is_encrypted());
 
         Ok(Self {
@@ -24,6 +24,11 @@ impl NetcodeClientTransport {
             netcode_client,
             buffer: [0u8; NETCODE_MAX_PACKET_BYTES],
         })
+    }
+
+    /// Gets the internal socket's [`ClientSocket::is_reliable`] value.
+    pub fn is_reliable(&self) -> bool {
+        self.socket.is_reliable()
     }
 
     /// Gets the client's [`SocketAddr`].

@@ -7,8 +7,8 @@ use warp::Filter;
 use log::{debug, info};
 use renet2::{
     transport::{
-        BoxedSocket, NativeSocket, NetcodeServerTransport, ServerCertHash, ServerSetupConfig, TransportSocket, WebServerDestination,
-        WebTransportServer, WebTransportServerConfig,
+        BoxedSocket, NativeSocket, NetcodeServerTransport, ServerCertHash, ServerSetupConfig, ServerSocket, WebServerDestination,
+        WebSocketServer, WebSocketServerConfig, WebTransportServer, WebTransportServerConfig,
     },
     ConnectionConfig, DefaultChannel, RenetServer, ServerEvent,
 };
@@ -17,6 +17,7 @@ use renetcode2::ServerAuthentication;
 struct ClientConnectionInfo {
     native_addr: String,
     wt_dest: WebServerDestination,
+    ws_url: url::Url,
     cert_hash: ServerCertHash,
 }
 
@@ -42,10 +43,17 @@ fn main() {
         (WebTransportServer::new(config, runtime.handle().clone()).unwrap(), cert_hash)
     };
 
+    // WebSocket socket
+    let ws_socket = {
+        let config = WebSocketServerConfig::new(wildcard_addr, max_clients);
+        WebSocketServer::new(config, runtime.handle().clone()).unwrap()
+    };
+
     // Save connection info
     let client_connection_info = ClientConnectionInfo {
         native_addr: native_socket.addr().unwrap().to_string(),
         wt_dest: wt_socket.addr().unwrap().into(),
+        ws_url: ws_socket.url(),
         cert_hash,
     };
 
@@ -55,12 +63,20 @@ fn main() {
         current_time,
         max_clients,
         protocol_id: 0,
-        socket_addresses: vec![vec![native_socket.addr().unwrap()], vec![wt_socket.addr().unwrap()]],
+        socket_addresses: vec![
+            vec![native_socket.addr().unwrap()],
+            vec![wt_socket.addr().unwrap()],
+            vec![ws_socket.addr().unwrap()],
+        ],
         authentication: ServerAuthentication::Unsecure,
     };
     let transport = NetcodeServerTransport::new_with_sockets(
         server_config,
-        Vec::from([BoxedSocket::new(native_socket), BoxedSocket::new(wt_socket)]),
+        Vec::from([
+            BoxedSocket::new(native_socket),
+            BoxedSocket::new(wt_socket),
+            BoxedSocket::new(ws_socket),
+        ]),
     )
     .unwrap();
     debug!("transport created");
@@ -75,13 +91,14 @@ fn main() {
 async fn run_http_server(http_addr: SocketAddr, client_connection_info: ClientConnectionInfo) {
     let native_addr = client_connection_info.native_addr;
     let wt_dest = client_connection_info.wt_dest;
+    let ws_url = client_connection_info.ws_url;
     let cert_hash = client_connection_info.cert_hash;
 
     let native = warp::path!("native").map(move || warp::reply::json(&native_addr));
 
     let cors = warp::cors().allow_any_origin();
     let wasm = warp::path!("wasm")
-        .map(move || warp::reply::json(&(&wt_dest, &cert_hash)))
+        .map(move || warp::reply::json(&(&wt_dest, &cert_hash, &ws_url)))
         .with(cors);
 
     let routes = warp::get().and(native.or(wasm));

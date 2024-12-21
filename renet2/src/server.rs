@@ -33,18 +33,26 @@ impl RenetServer {
     }
 
     /// Adds a new connection to the server. If a connection already exits it does nothing.
+    ///
+    /// The argument `socket_is_reliable` should be set if using something like `WebSockets` for the underlying
+    /// connection. The client should also set that value in their [`RenetClient`].
+    ///
     /// <p style="background:rgba(77,220,255,0.16);padding:0.5em;">
     /// <strong>Note:</strong> This should only be called by the transport layer.
     /// </p>
-    pub fn add_connection(&mut self, client_id: ClientId) {
-        if self.connections.contains_key(&client_id) {
-            return;
+    pub fn add_connection(&mut self, client_id: ClientId, socket_is_reliable: bool) {
+        if let Some(client) = self.connections.get(&client_id) {
+            // If socket reliability changes then we need to make a new connection.
+            if client.has_reliable_socket() == socket_is_reliable {
+                return;
+            }
         }
 
-        let mut connection = RenetClient::new_from_server(self.connection_config.clone());
+        let connection_config = self.connection_config.clone();
+        let mut client = RenetClient::new_from_server(connection_config, socket_is_reliable);
         // Consider newly added connections as connected
-        connection.set_connected();
-        self.connections.insert(client_id, connection);
+        client.set_connected();
+        self.connections.insert(client_id, client);
         self.events.push_back(ServerEvent::ClientConnected { client_id })
     }
 

@@ -142,7 +142,7 @@ fn run_client(steam_client: Client<ClientManager>, single: SingleClient, server_
         }
     }
     let connection_config = ConnectionConfig::test();
-    let mut client = RenetClient::new(connection_config);
+    let mut client = RenetClient::new(connection_config, false);
 
     let mut transport = SteamClientTransport::new(&steam_client, &server_steam_id).unwrap();
     let stdin_channel: Receiver<String> = spawn_stdin_channel();

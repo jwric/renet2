@@ -30,7 +30,7 @@ fn create_server_transport(num_clients: usize) -> (NetcodeServerTransport, Vec<M
         protocol_id: PROTOCOL_ID,
         authentication: ServerAuthentication::Unsecure,
     };
-    let (server_socket, client_sockets) = new_memory_sockets((1..=num_clients as u16).collect(), false);
+    let (server_socket, client_sockets) = new_memory_sockets((1..=num_clients as u16).collect(), false, false);
 
     (NetcodeServerTransport::new(server_config, server_socket).unwrap(), client_sockets)
 }
@@ -58,7 +58,7 @@ fn setup_server(app: &mut App, num_clients: usize) -> Vec<MemorySocketClient> {
 }
 
 fn setup_client(app: &mut App, socket: MemorySocketClient) {
-    let client = RenetClient::new(ConnectionConfig::test());
+    let client = RenetClient::new(ConnectionConfig::test(), false);
     let transport = create_client_transport(socket);
 
     app.insert_resource(client).insert_resource(transport);

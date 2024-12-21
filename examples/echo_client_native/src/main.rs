@@ -6,7 +6,7 @@ use std::{
 };
 
 use renet2::{
-    transport::{ClientAuthentication, NativeSocket, NetcodeClientTransport},
+    transport::{ClientAuthentication, ClientSocket, NativeSocket, NetcodeClientTransport},
     ConnectionConfig, DefaultChannel, RenetClient,
 };
 
@@ -25,7 +25,7 @@ fn main() {
             .unwrap()
     });
 
-    // Set up the client transport.
+    // Set up the client.
     println!("Type to enter a message.");
 
     let client_socket = NativeSocket::new(UdpSocket::bind("127.0.0.1:0").unwrap()).unwrap();
@@ -39,11 +39,10 @@ fn main() {
         protocol_id: 0,
     };
 
+    let mut client = RenetClient::new(ConnectionConfig::test(), client_socket.is_reliable());
     let mut transport = NetcodeClientTransport::new(current_time, authentication, client_socket).unwrap();
 
     // Run the client
-    let mut client = RenetClient::new(ConnectionConfig::test());
-
     let stdin_channel: Receiver<String> = spawn_stdin_channel();
     let mut last_updated = Instant::now();
     loop {

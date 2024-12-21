@@ -102,7 +102,7 @@ impl<const N: usize> RenetClientVisualizer<N> {
     /// ```
     /// # use renet2::{RenetClient, ConnectionConfig};
     /// # use renet2_visualizer::RenetClientVisualizer;
-    /// # let mut client = RenetClient::new(ConnectionConfig::test());
+    /// # let mut client = RenetClient::new(ConnectionConfig::test(), false);
     /// # let delta = std::time::Duration::ZERO;
     /// # let mut visualizer = RenetClientVisualizer::<5>::new(Default::default());
     /// client.update(delta);

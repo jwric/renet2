@@ -1,34 +1,36 @@
 use std::{io::ErrorKind, net::SocketAddr};
 
-use crate::transport::{NetcodeTransportError, TransportSocket};
+use crate::transport::{ClientSocket, NetcodeTransportError};
 use renetcode2::NETCODE_MAX_PACKET_BYTES;
 
 use super::*;
 
-/// Implementation of [`TransportSocket`] for clients of an in-memory channel server socket.
+/// Implementation of [`ClientSocket`] for clients of an in-memory channel server socket.
 ///
-/// In-memory sockets are treated as encrypted by default for efficiency. Use [`Self::new_with`] to use
+/// In-memory sockets are treated as encrypted and reliable by default for efficiency. Use [`Self::new_with`] to use
 /// a different policy (this is useful for performane tests).
 #[derive(Debug, Clone)]
 pub struct MemorySocketClient {
     client_id: u16,
     channels: MemorySocketChannels,
     encrypted: bool,
+    reliable: bool,
 }
 
 impl MemorySocketClient {
     /// Makes a new in-memory client socket.
     pub fn new(client_id: u16, channels: MemorySocketChannels) -> Self {
-        Self::new_with(client_id, channels, true)
+        Self::new_with(client_id, channels, true, true)
     }
 
-    /// Makes a new in-memory client socket with a specific encryption policy.
-    pub fn new_with(client_id: u16, channels: MemorySocketChannels, encrypted: bool) -> Self {
+    /// Makes a new in-memory client socket with a specific encryption and reliability policy.
+    pub fn new_with(client_id: u16, channels: MemorySocketChannels, encrypted: bool, reliable: bool) -> Self {
         assert!(client_id != IN_MEMORY_SERVER_ID);
         Self {
             client_id,
             channels,
             encrypted,
+            reliable,
         }
     }
 
@@ -40,9 +42,12 @@ impl MemorySocketClient {
     }
 }
 
-impl TransportSocket for MemorySocketClient {
+impl ClientSocket for MemorySocketClient {
     fn is_encrypted(&self) -> bool {
         self.encrypted
+    }
+    fn is_reliable(&self) -> bool {
+        self.reliable
     }
 
     fn addr(&self) -> std::io::Result<SocketAddr> {
@@ -54,9 +59,6 @@ impl TransportSocket for MemorySocketClient {
     }
 
     fn close(&mut self) {}
-    fn connection_denied(&mut self, _: SocketAddr) {}
-    fn connection_accepted(&mut self, _: u64, _: SocketAddr) {}
-    fn disconnect(&mut self, _: SocketAddr) {}
     fn preupdate(&mut self) {}
 
     fn try_recv(&mut self, buffer: &mut [u8]) -> std::io::Result<(usize, SocketAddr)> {

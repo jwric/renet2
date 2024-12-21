@@ -7,7 +7,7 @@ use crate::packet::Payload;
 use crate::ClientId;
 use crate::RenetServer;
 
-use super::{NetcodeTransportError, TransportSocket};
+use super::{NetcodeTransportError, ServerSocket};
 
 /// Config for setting up a [`NetcodeServerTransport`].
 ///
@@ -26,14 +26,14 @@ pub struct ServerSetupConfig {
     pub authentication: ServerAuthentication,
 }
 
-/// Convenience wrapper for [`TransportSocket`].
+/// Convenience wrapper for [`ServerSocket`].
 ///
 /// Used in [`NetcodeServerTransport::new_with_sockets`].
-pub struct BoxedSocket(Box<dyn TransportSocket>);
+pub struct BoxedSocket(Box<dyn ServerSocket>);
 
 impl BoxedSocket {
     /// Makes a new boxed socket.
-    pub fn new(socket: impl TransportSocket) -> Self {
+    pub fn new(socket: impl ServerSocket) -> Self {
         Self(Box::new(socket))
     }
 }
@@ -41,20 +41,20 @@ impl BoxedSocket {
 #[derive(Debug)]
 #[cfg_attr(feature = "bevy", derive(bevy_ecs::system::Resource))]
 pub struct NetcodeServerTransport {
-    sockets: Vec<Box<dyn TransportSocket>>,
+    sockets: Vec<Box<dyn ServerSocket>>,
     netcode_server: NetcodeServer,
     buffer: [u8; NETCODE_MAX_PACKET_BYTES],
 }
 
 impl NetcodeServerTransport {
     /// Makes a new server transport that uses `netcode` for managing connections and data flow.
-    pub fn new(server_config: ServerSetupConfig, socket: impl TransportSocket) -> Result<Self, std::io::Error> {
+    pub fn new(server_config: ServerSetupConfig, socket: impl ServerSocket) -> Result<Self, std::io::Error> {
         Self::new_with_sockets(server_config, vec![BoxedSocket::new(socket)])
     }
 
     /// Makes a new server transport that uses `netcode` for managing connections and data flow.
     ///
-    /// Multiple [`TransportSockets`](TransportSocket) may be inserted. Each socket must line
+    /// Multiple [`ServerSockets`](ServerSocket) may be inserted. Each socket must line
     /// up 1:1 with socket entries in [`ServerSetupConfig::socket_addresses`].
     pub fn new_with_sockets(mut server_config: ServerSetupConfig, mut boxed: Vec<BoxedSocket>) -> Result<Self, std::io::Error> {
         if server_config.socket_addresses.is_empty() {
@@ -210,7 +210,7 @@ impl NetcodeServerTransport {
 ///
 /// Disconnects the client if its address connection is broken.
 fn send_packet_to_client(
-    sockets: &mut [Box<dyn TransportSocket>],
+    sockets: &mut [Box<dyn ServerSocket>],
     netcode_server: &mut NetcodeServer,
     reliable_server: &mut RenetServer,
     packet: &Payload,
@@ -241,8 +241,8 @@ fn send_packet_to_client(
     }
 }
 
-fn handle_server_result(server_result: ServerResult, sockets: &mut [Box<dyn TransportSocket>], reliable_server: &mut RenetServer) {
-    let send_packet = |sockets: &mut [Box<dyn TransportSocket>], packet: &[u8], socket_id: usize, addr: SocketAddr| {
+fn handle_server_result(server_result: ServerResult, sockets: &mut [Box<dyn ServerSocket>], reliable_server: &mut RenetServer) {
+    let send_packet = |sockets: &mut [Box<dyn ServerSocket>], packet: &[u8], socket_id: usize, addr: SocketAddr| {
         if let Err(err) = sockets[socket_id].send(addr, packet) {
             log::trace!("Failed to send packet to {socket_id}/{addr}: {err}");
         }
@@ -284,7 +284,7 @@ fn handle_server_result(server_result: ServerResult, sockets: &mut [Box<dyn Tran
             payload,
             socket_id,
         } => {
-            reliable_server.add_connection(ClientId::from_raw(client_id));
+            reliable_server.add_connection(ClientId::from_raw(client_id), sockets[socket_id].is_reliable());
             send_packet(sockets, payload, socket_id, addr);
         }
         ServerResult::ClientDisconnected {

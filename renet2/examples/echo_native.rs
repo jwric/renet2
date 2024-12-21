@@ -141,7 +141,7 @@ fn server(public_addr: SocketAddr) {
 
 fn client(server_addr: SocketAddr, username: Username) {
     let connection_config = ConnectionConfig::test();
-    let mut client = RenetClient::new(connection_config);
+    let mut client = RenetClient::new(connection_config, false);
 
     let socket = UdpSocket::bind("127.0.0.1:0").unwrap();
     let current_time = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap();

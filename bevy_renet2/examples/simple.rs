@@ -60,7 +60,7 @@ fn new_renet_client() -> (RenetClient, NetcodeClientTransport) {
     };
 
     let transport = NetcodeClientTransport::new(current_time, authentication, NativeSocket::new(socket).unwrap()).unwrap();
-    let client = RenetClient::new(ConnectionConfig::test());
+    let client = RenetClient::new(ConnectionConfig::test(), transport.is_reliable());
 
     (client, transport)
 }

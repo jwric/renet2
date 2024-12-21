@@ -1,17 +1,18 @@
 use std::{io::ErrorKind, net::SocketAddr};
 
-use crate::transport::{NetcodeTransportError, TransportSocket};
+use crate::transport::{NetcodeTransportError, ServerSocket};
 
 use super::*;
 
-/// Implementation of [`TransportSocket`] for a server socket using in-memory channels.
+/// Implementation of [`ServerSocket`] for a server socket using in-memory channels.
 ///
-/// In-memory sockets are treated as encrypted by default for efficiency. Use [`Self::new_with`] to use
+/// In-memory sockets are treated as encrypted and reliable by default for efficiency. Use [`Self::new_with`] to use
 /// a different policy (this is useful for performance tests).
 #[derive(Debug)]
 pub struct MemorySocketServer {
     clients: Vec<(u16, MemorySocketChannels)>,
     encrypted: bool,
+    reliable: bool,
     drain_index: usize,
 }
 
@@ -20,7 +21,7 @@ impl MemorySocketServer {
     ///
     /// Takes a vector of `(client id, socket channels)`.
     pub fn new(clients: Vec<(u16, MemorySocketChannels)>) -> Self {
-        Self::new_with(clients, true)
+        Self::new_with(clients, true, true)
     }
 
     /// Makes a new in-memory socket for a server with a specific encryption policy.
@@ -29,18 +30,25 @@ impl MemorySocketServer {
     ///
     /// If `encrypted` is set to `true` then the memory transport will be treated *as if* it were encrypted.
     /// If you want `renet2` to encrypt the channel, set it to `false`.
-    pub fn new_with(clients: Vec<(u16, MemorySocketChannels)>, encrypted: bool) -> Self {
+    ///
+    /// If `reliable` is set to `true` then the memory transport will downgrade all channels to unreliable.
+    /// If you don't want to downgrade channels (e.g. for performance testing), set it to false.
+    pub fn new_with(clients: Vec<(u16, MemorySocketChannels)>, encrypted: bool, reliable: bool) -> Self {
         Self {
             clients,
             encrypted,
+            reliable,
             drain_index: 0,
         }
     }
 }
 
-impl TransportSocket for MemorySocketServer {
+impl ServerSocket for MemorySocketServer {
     fn is_encrypted(&self) -> bool {
         self.encrypted
+    }
+    fn is_reliable(&self) -> bool {
+        self.reliable
     }
 
     fn addr(&self) -> std::io::Result<SocketAddr> {

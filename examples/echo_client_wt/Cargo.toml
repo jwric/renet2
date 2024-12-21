@@ -17,12 +17,13 @@ log = "0.4"
 console_log = "1"
 tracing = "0.1"
 tracing-wasm = "0.2"
+url = "2.4"
 wasm-bindgen = "0.2"
 wasm-bindgen-futures = "0.4"
 wasm-timer = "0.2"
 console_error_panic_hook = "0.1"
 
-renet2 = { path = "../../renet2", default-features = false, features = ["serde", "wt_client_transport"] }
+renet2 = { path = "../../renet2", default-features = false, features = ["serde", "wt_client_transport", "ws_client_transport"] }
 renetcode2 = { path = "../../renetcode2" }
 
 [profile.release]

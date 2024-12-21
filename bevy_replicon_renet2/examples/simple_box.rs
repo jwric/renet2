@@ -94,10 +94,10 @@ impl SimpleBoxPlugin {
                 commands.spawn(PlayerBundle::new(ClientId::SERVER, Vec2::ZERO, LIME.into()));
             }
             Cli::Client { port, ip } => {
-                let client = RenetClient::new(ConnectionConfig::from_channels(
-                    channels.get_server_configs(),
-                    channels.get_client_configs(),
-                ));
+                let client = RenetClient::new(
+                    ConnectionConfig::from_channels(channels.get_server_configs(), channels.get_client_configs()),
+                    false,
+                );
 
                 let current_time = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH)?;
                 let client_id = current_time.as_millis() as u64;

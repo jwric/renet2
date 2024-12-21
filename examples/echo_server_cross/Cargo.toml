@@ -12,7 +12,10 @@ description = "Server example transport for WebTransport"
 env_logger = "0.11"
 log = "0.4"
 tokio = { version = "1", features = ["full"] }
+url = "2.4"
 warp = "0.3"
 
-renet2 = { path = "../../renet2", default-features = false, features = ["serde", "native_transport", "wt_server_transport"] }
+renet2 = { path = "../../renet2", default-features = false, features = [
+    "serde", "native_transport", "wt_server_transport", "ws_server_transport"
+] }
 renetcode2 = { path = "../../renetcode2" }

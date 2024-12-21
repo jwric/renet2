@@ -49,6 +49,18 @@ impl ConnectionConfig {
     pub fn test() -> Self {
         Self::from_shared_channels(DefaultChannel::config())
     }
+
+    /// Downgrades all channels to [`SendType::Unreliable`].
+    ///
+    /// Used when setting up a client that has a socket with built-in reliability (such as WebSockets).
+    pub fn downgrade_to_unreliable(&mut self) {
+        self.server_channels_config.iter_mut().for_each(|c| {
+            c.send_type = SendType::Unreliable;
+        });
+        self.client_channels_config.iter_mut().for_each(|c| {
+            c.send_type = SendType::Unreliable;
+        });
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -117,6 +129,7 @@ pub enum RenetConnectionStatus {
 #[derive(Debug)]
 #[cfg_attr(feature = "bevy", derive(bevy_ecs::system::Resource))]
 pub struct RenetClient {
+    has_reliable_socket: bool,
     packet_sequence: u64,
     current_time: Duration,
     sent_packets: BTreeMap<u64, PacketSent>,
@@ -131,8 +144,18 @@ pub struct RenetClient {
 }
 
 impl RenetClient {
-    pub fn new(config: ConnectionConfig) -> Self {
+    /// The `has_reliable_socket` argument must match with the underlying socket.
+    ///
+    /// It will be false for sockets like UDP or WebTransport, and true for in-memory sockets and WebSockets.
+    ///
+    /// See [`TransportSocket::is_reliable`].
+    pub fn new(mut config: ConnectionConfig, has_reliable_socket: bool) -> Self {
+        if has_reliable_socket {
+            config.downgrade_to_unreliable();
+        }
+
         Self::from_channels(
+            has_reliable_socket,
             config.available_bytes_per_tick,
             config.client_channels_config,
             config.server_channels_config,
@@ -141,8 +164,13 @@ impl RenetClient {
 
     // When creating a client from the server, the server_channels_config are used as send channels,
     // and the client_channels_config is used as recv channels.
-    pub(crate) fn new_from_server(config: ConnectionConfig) -> Self {
+    pub(crate) fn new_from_server(mut config: ConnectionConfig, has_reliable_socket: bool) -> Self {
+        if has_reliable_socket {
+            config.downgrade_to_unreliable();
+        }
+
         Self::from_channels(
+            has_reliable_socket,
             config.available_bytes_per_tick,
             config.server_channels_config,
             config.client_channels_config,
@@ -150,6 +178,7 @@ impl RenetClient {
     }
 
     fn from_channels(
+        has_reliable_socket: bool,
         available_bytes_per_tick: u64,
         send_channels_config: Vec<ChannelConfig>,
         receive_channels_config: Vec<ChannelConfig>,
@@ -209,6 +238,7 @@ impl RenetClient {
         }
 
         Self {
+            has_reliable_socket,
             packet_sequence: 0,
             current_time: Duration::ZERO,
             sent_packets: BTreeMap::new(),
@@ -221,6 +251,11 @@ impl RenetClient {
             available_bytes_per_tick,
             connection_status: RenetConnectionStatus::Connecting,
         }
+    }
+
+    /// Returns whether this client uses a reliable underlying socket.
+    pub fn has_reliable_socket(&self) -> bool {
+        self.has_reliable_socket
     }
 
     /// Returns the round-time trip for the connection.
@@ -746,7 +781,7 @@ mod tests {
 
     #[test]
     fn pending_acks() {
-        let mut connection = RenetClient::new(ConnectionConfig::test());
+        let mut connection = RenetClient::new(ConnectionConfig::test(), false);
         connection.add_pending_ack(3);
         assert_eq!(connection.pending_acks, vec![3..4]);
 
@@ -774,7 +809,7 @@ mod tests {
 
     #[test]
     fn ack_pending_acks() {
-        let mut connection = RenetClient::new(ConnectionConfig::test());
+        let mut connection = RenetClient::new(ConnectionConfig::test(), false);
         for i in 0..10 {
             connection.add_pending_ack(i);
         }
@@ -800,7 +835,7 @@ mod tests {
 
     #[test]
     fn discard_old_packets() {
-        let mut connection = RenetClient::new(ConnectionConfig::test());
+        let mut connection = RenetClient::new(ConnectionConfig::test(), false);
         let message: Bytes = vec![5; 5].into();
         connection.send_message(0, message);
 
