@@ -7,6 +7,7 @@
     - `quinn`: 0.10 -> 0.11.6
     - `rcgen`: 0.12 -> 0.13
     - `h3-quinn`/`h3-webtransport`/`h3`: h3-v0.0.4 -> h3-v0.0.6
+- Add `webtransport_is_available()`/`webtransport_is_available_with_cert_hashes()` helpers for WASM clients.
 
 ## 0.0.7 - 12/02/24
 

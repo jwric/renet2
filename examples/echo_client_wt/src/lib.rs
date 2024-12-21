@@ -1,5 +1,6 @@
 use renet2::{
     transport::{
+        webtransport_is_available_with_cert_hashes,
         CongestionControl, NetcodeClientTransport, ServerCertHash, WebServerDestination, WebTransportClient, WebTransportClientConfig,
     },
     ConnectionConfig, DefaultChannel, RenetClient,
@@ -21,8 +22,11 @@ pub struct ChatApplication {
 impl ChatApplication {
     pub async fn new() -> Result<ChatApplication, JsValue> {
         console_error_panic_hook::set_once();
+        tracing_wasm::set_as_global_default();
+        let _ = console_log::init_with_level(log::Level::Debug); // tracing_wasm doesn't unify with log crate
 
         // Wait for renet2 server connection info.
+        tracing::info!("getting server info");
         let (server_dest, server_cert_hash) = reqwest::get("http://127.0.0.1:4433/wasm")
             .await
             .unwrap()
@@ -31,6 +35,12 @@ impl ChatApplication {
             .unwrap();
 
         // Setup
+        tracing::info!("setting up client");
+
+        if !webtransport_is_available_with_cert_hashes() {
+            tracing::warn!("webtransport not supported on this platform");
+        }
+
         let connection_config = ConnectionConfig::test();
         let client = RenetClient::new(connection_config);
         let current_time = SystemTime::now().duration_since(UNIX_EPOCH).unwrap();

@@ -1,4 +1,4 @@
-const CopyWebpackPlugin = require("copy-webpack-plugin");
+const CopyPlugin = require("copy-webpack-plugin");
 const path = require('path');
 
 // Workaround for crypto createHash not supporting md4
@@ -16,6 +16,11 @@ module.exports = {
   },
   mode: "development",
   plugins: [
-    new CopyWebpackPlugin(['index.html'])
+    new CopyPlugin({patterns:["index.html"]})
   ],
+  // Required since webpack v5
+  experiments: {
+    asyncWebAssembly: true,
+    syncWebAssembly: true
+  }
 };
