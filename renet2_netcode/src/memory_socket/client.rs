@@ -1,6 +1,6 @@
 use std::{io::ErrorKind, net::SocketAddr};
 
-use crate::transport::{ClientSocket, NetcodeTransportError};
+use crate::{ClientSocket, NetcodeTransportError};
 use renetcode2::NETCODE_MAX_PACKET_BYTES;
 
 use super::*;

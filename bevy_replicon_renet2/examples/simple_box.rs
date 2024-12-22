@@ -14,12 +14,10 @@ use bevy::{
 };
 use bevy_replicon::prelude::*;
 use bevy_replicon_renet2::{
-    renet2::{
-        transport::{
-            ClientAuthentication, NativeSocket, NetcodeClientTransport, NetcodeServerTransport, ServerAuthentication, ServerSetupConfig,
-        },
-        ConnectionConfig, RenetClient, RenetServer,
+    netcode::{
+        ClientAuthentication, NativeSocket, NetcodeClientTransport, NetcodeServerTransport, ServerAuthentication, ServerSetupConfig,
     },
+    renet2::{ConnectionConfig, RenetClient, RenetServer},
     RenetChannelsExt, RepliconRenetPlugins,
 };
 use clap::Parser;

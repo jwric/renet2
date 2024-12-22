@@ -1,3 +1,7 @@
+//! Integrates the `netcode` authentication and encryption protocol with `renet2`'s reliability layer.
+//!
+//! Includes built-in data transports.
+
 use std::{error::Error, fmt};
 
 mod client;
@@ -31,7 +35,7 @@ pub use renetcode2::{
 #[cfg_attr(feature = "bevy", derive(bevy_ecs::prelude::Event))]
 pub enum NetcodeTransportError {
     Netcode(NetcodeError),
-    Renet(crate::DisconnectReason),
+    Renet(renet2::DisconnectReason),
     IO(std::io::Error),
 }
 
@@ -59,8 +63,8 @@ impl From<renetcode2::TokenGenerationError> for NetcodeTransportError {
     }
 }
 
-impl From<crate::DisconnectReason> for NetcodeTransportError {
-    fn from(inner: crate::DisconnectReason) -> Self {
+impl From<renet2::DisconnectReason> for NetcodeTransportError {
+    fn from(inner: renet2::DisconnectReason) -> Self {
         NetcodeTransportError::Renet(inner)
     }
 }

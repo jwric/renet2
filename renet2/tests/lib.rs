@@ -1,5 +1,5 @@
 use bytes::Bytes;
-use renet2::{ClientId, ConnectionConfig, DefaultChannel, DisconnectReason, RenetClient, RenetServer, ServerEvent};
+use renet2::{ConnectionConfig, DefaultChannel, DisconnectReason, RenetClient, RenetServer, ServerEvent};
 
 pub fn init_log() {
     let _ = env_logger::builder().is_test(true).try_init();
@@ -11,7 +11,7 @@ fn test_remote_connection_reliable_channel() {
     let mut server = RenetServer::new(ConnectionConfig::test());
     let mut client = RenetClient::new(ConnectionConfig::test(), false);
 
-    let client_id = ClientId::from_raw(0);
+    let client_id = 0;
     server.add_connection(client_id, false);
     assert_eq!(server.connected_clients(), 1);
     assert!(server.has_connections());

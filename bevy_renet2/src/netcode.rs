@@ -1,13 +1,12 @@
-use renet2::{
-    transport::{NetcodeClientTransport, NetcodeServerTransport, NetcodeTransportError},
-    RenetClient, RenetServer,
-};
+pub use renet2_netcode::*;
+
+use renet2::{RenetClient, RenetServer};
 
 use bevy_app::{prelude::*, AppExit};
 use bevy_ecs::prelude::*;
 use bevy_time::prelude::*;
 
-use crate::{client_should_update, RenetClientPlugin, RenetReceive, RenetSend, RenetServerPlugin};
+use crate::prelude::{client_should_update, RenetClientPlugin, RenetReceive, RenetSend, RenetServerPlugin};
 
 pub struct NetcodeServerPlugin;
 

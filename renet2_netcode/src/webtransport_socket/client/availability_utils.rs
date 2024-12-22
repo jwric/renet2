@@ -1,7 +1,7 @@
 use std::net::SocketAddr;
 
 use super::bindings::WebTransport;
-use crate::transport::{ServerCertHash, WebTransportClientConfig};
+use crate::{ServerCertHash, WebTransportClientConfig};
 
 /// Checks if the current WASM operating environment supports WebTransport.
 ///

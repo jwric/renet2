@@ -3,9 +3,7 @@ use std::{io, net::SocketAddr, time::Duration};
 use renetcode2::{NetcodeServer, ServerConfig, ServerResult, NETCODE_MAX_PACKET_BYTES, NETCODE_USER_DATA_BYTES};
 use renetcode2::{ServerAuthentication, ServerSocketConfig};
 
-use crate::packet::Payload;
-use crate::ClientId;
-use crate::RenetServer;
+use renet2::{ClientId, Payload, RenetServer};
 
 use super::{NetcodeTransportError, ServerSocket};
 
@@ -120,12 +118,12 @@ impl NetcodeServerTransport {
 
     /// Returns the user data for client if connected.
     pub fn user_data(&self, client_id: ClientId) -> Option<[u8; NETCODE_USER_DATA_BYTES]> {
-        self.netcode_server.user_data(client_id.raw())
+        self.netcode_server.user_data(client_id)
     }
 
     /// Returns the client socket id and address if connected.
     pub fn client_addr(&self, client_id: ClientId) -> Option<(usize, SocketAddr)> {
-        self.netcode_server.client_addr(client_id.raw())
+        self.netcode_server.client_addr(client_id)
     }
 
     /// Disconnects all connected clients.
@@ -143,7 +141,7 @@ impl NetcodeServerTransport {
     ///
     /// Useful to detect users that are timing out.
     pub fn time_since_last_received_packet(&self, client_id: ClientId) -> Option<Duration> {
-        self.netcode_server.time_since_last_received_packet(client_id.raw())
+        self.netcode_server.time_since_last_received_packet(client_id)
     }
 
     /// Advances the transport by the duration, and receive packets from the network.
@@ -176,7 +174,7 @@ impl NetcodeServerTransport {
         }
 
         for disconnection_id in server.disconnections_id() {
-            let server_result = self.netcode_server.disconnect(disconnection_id.raw());
+            let server_result = self.netcode_server.disconnect(disconnection_id);
             handle_server_result(server_result, &mut self.sockets, server);
         }
 
@@ -216,7 +214,7 @@ fn send_packet_to_client(
     packet: &Payload,
     client_id: ClientId,
 ) -> bool {
-    let (send_result, socket_id, addr) = match netcode_server.generate_payload_packet(client_id.raw(), packet) {
+    let (send_result, socket_id, addr) = match netcode_server.generate_payload_packet(client_id, packet) {
         Ok((socket_id, addr, payload)) => (sockets[socket_id].send(addr, payload), socket_id, addr),
         Err(e) => {
             log::error!("Failed to encrypt payload packet for client {client_id}: {e}");
@@ -230,7 +228,7 @@ fn send_packet_to_client(
             // Manually disconnect the client if the client's address is disconnected.
             reliable_server.remove_connection(client_id);
             // Ignore the server result since this client is not connected.
-            let _ = netcode_server.disconnect(client_id.raw());
+            let _ = netcode_server.disconnect(client_id);
 
             false
         }
@@ -272,7 +270,6 @@ fn handle_server_result(server_result: ServerResult, sockets: &mut [Box<dyn Serv
             send_packet(sockets, payload, socket_id, addr);
         }
         ServerResult::Payload { client_id, payload } => {
-            let client_id = ClientId::from_raw(client_id);
             if let Err(e) = reliable_server.process_packet_from(payload, client_id) {
                 log::error!("Error while processing payload for {}: {}", client_id, e);
             }
@@ -284,7 +281,7 @@ fn handle_server_result(server_result: ServerResult, sockets: &mut [Box<dyn Serv
             payload,
             socket_id,
         } => {
-            reliable_server.add_connection(ClientId::from_raw(client_id), sockets[socket_id].is_reliable());
+            reliable_server.add_connection(client_id, sockets[socket_id].is_reliable());
             send_packet(sockets, payload, socket_id, addr);
         }
         ServerResult::ClientDisconnected {
@@ -293,7 +290,7 @@ fn handle_server_result(server_result: ServerResult, sockets: &mut [Box<dyn Serv
             payload,
             socket_id,
         } => {
-            reliable_server.remove_connection(ClientId::from_raw(client_id));
+            reliable_server.remove_connection(client_id);
             if let Some(payload) = payload {
                 send_packet(sockets, payload, socket_id, addr);
             }

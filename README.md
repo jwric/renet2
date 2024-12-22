@@ -28,13 +28,15 @@ Provides the following features:
 Renet2 extends the original [netcode](https://github.com/networkprotocol/netcode) protocol with:
 
 - Optional packet encryption. This supports data transports that do their own encryption.
-- Servers with multiple concurrent data sources (e.g. UDP sockets and WebTransport).
+- Optional transport reliability. This supports data transports that are automatically reliable.
+- Servers with multiple concurrent data transports (e.g. UDP sockets and WebTransport).
 
 See `renetcode2/NETCODE_EXTENSIONS.md`.
 
 ### Features
 
 - Includes built-in data transports: UDP, memory channels, WebTransport, WebSockets.
+    - See `src/examples` for a fully cross-platform demo.
 
 
 ## Building docs
@@ -44,10 +46,10 @@ Build workspace docs (no WASM):
 cargo doc --open --no-deps --all-features
 ```
 
-Build WASM docs (`renet2` workspace crate only):
+Build WASM docs (`renet2_netcode` workspace crate only):
 ```
-cd renet2 &&\
-cargo doc --open --no-deps --no-default-features --features=wt_client_transport,ws_client_transport,transport --target wasm32-unknown-unknown
+cd renet2_netcode &&\
+cargo doc --open --no-deps --no-default-features --features=wt_client_transport,ws_client_transport --target wasm32-unknown-unknown
 ```
 
 
@@ -133,7 +135,7 @@ loop {
     // Send a text message for all clients
     server.broadcast_message(DefaultChannel::ReliableOrdered, "server message");
 
-    let client_id = ClientId::from_raw(0);
+    let client_id = 0;
     // Send a text message for all clients except for Client 0
     server.broadcast_message_except(client_id, DefaultChannel::ReliableOrdered, "server message");
     

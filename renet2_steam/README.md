@@ -4,7 +4,7 @@
 ![MIT](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Apache](https://img.shields.io/badge/license-Apache-blue.svg)
 
-Transport layer for the [renet](https://github.com/lucaspoffo/renet) crate using the steamworks-rs.
+Transport layer for the [renet2](https://github.com/UkoeHB/renet2) crate using the steamworks-rs.
 
 ## Usage
 
@@ -108,6 +108,6 @@ The LOBBY_ID is printed in the console when the server starts.
 
 ## Bevy
 
-If you are using bevy, you can enable the `bevy` feature and instead of using the default transport that comes in `bevy_renet` you can use `SteamServerPlugin` and `SteamClientPlugin`, the setup should be similar.
+If you are using bevy, you can use the `bevy_renet2` crate with the `steam` feature. That crate has `SteamServerPlugin` and `SteamClientPlugin`, with a similar setup.
 
-You can check the [Bevy Demo](https://github.com/lucaspoffo/renet/tree/master/demo_bevy) for how to use the default and steam transport switching between them using feature flags.
+You can check the [Bevy Demo](https://github.com/UkoeHB/renet2/tree/master/demo_bevy) for how to use the default and steam transport switching between them using feature flags.

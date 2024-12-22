@@ -2,7 +2,7 @@ use std::{io, net::SocketAddr, time::Duration};
 
 use renetcode2::{ClientAuthentication, DisconnectReason, NetcodeClient, NetcodeError, NETCODE_MAX_PACKET_BYTES};
 
-use crate::{remote_connection::RenetClient, ClientId};
+use renet2::{ClientId, RenetClient};
 
 use super::{ClientSocket, NetcodeTransportError};
 
@@ -40,7 +40,7 @@ impl NetcodeClientTransport {
 
     /// Returns the client's id.
     pub fn client_id(&self) -> ClientId {
-        ClientId(self.netcode_client.client_id())
+        self.netcode_client.client_id()
     }
 
     /// Returns `true` if the netcode client is connected.

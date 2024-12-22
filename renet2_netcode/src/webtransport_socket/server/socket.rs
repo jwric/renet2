@@ -22,11 +22,9 @@ use std::{
     vec,
 };
 
-use crate::transport::{
-    client_idx_from_addr, client_idx_to_addr, NetcodeTransportError, ServerSocket, WebServerDestination, HTTP_CONNECT_REQ,
+use crate::{
+    client_idx_from_addr, client_idx_to_addr, NetcodeTransportError, ServerCertHash, ServerSocket, WebServerDestination, HTTP_CONNECT_REQ,
 };
-
-use crate::transport::ServerCertHash;
 
 use super::{generate_self_signed_certificate_opinionated, get_server_cert_hash};
 

@@ -1,6 +1,6 @@
 use std::{io::ErrorKind, net::SocketAddr};
 
-use crate::transport::{NetcodeTransportError, ServerSocket};
+use crate::{NetcodeTransportError, ServerSocket};
 
 use super::*;
 

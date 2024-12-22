@@ -6,10 +6,7 @@ use bevy::{
     window::PrimaryWindow,
 };
 use bevy_egui::{EguiContexts, EguiPlugin};
-use bevy_renet2::{
-    renet2::{ClientId, RenetClient},
-    RenetClientPlugin,
-};
+use bevy_renet2::prelude::{ClientId, RenetClient, RenetClientPlugin};
 use demo_bevy::{setup_level, ClientChannel, NetworkedEntities, PlayerCommand, PlayerInput, ServerChannel, ServerMessages};
 use renet2_visualizer::{RenetClientVisualizer, RenetVisualizerStyle};
 use smooth_bevy_cameras::{LookTransform, LookTransformBundle, LookTransformPlugin, Smoother};
@@ -37,14 +34,14 @@ struct CurrentClientId(u64);
 #[derive(SystemSet, Debug, Clone, Copy, PartialEq, Eq, Hash)]
 struct Connected;
 
-#[cfg(feature = "transport")]
+#[cfg(feature = "netcode")]
 fn add_netcode_network(app: &mut App) {
-    use bevy_renet2::client_connected;
-    use bevy_renet2::renet2::transport::{ClientAuthentication, NativeSocket, NetcodeClientTransport, NetcodeTransportError};
+    use bevy_renet2::netcode::{ClientAuthentication, NativeSocket, NetcodeClientTransport, NetcodeTransportError};
+    use bevy_renet2::prelude::client_connected;
     use demo_bevy::{connection_config, PROTOCOL_ID};
     use std::{net::UdpSocket, time::SystemTime};
 
-    app.add_plugins(bevy_renet2::transport::NetcodeClientPlugin);
+    app.add_plugins(bevy_renet2::netcode::NetcodeClientPlugin);
 
     app.configure_sets(Update, Connected.run_if(client_connected));
 
@@ -81,9 +78,9 @@ fn add_netcode_network(app: &mut App) {
 
 #[cfg(feature = "steam")]
 fn add_steam_network(app: &mut App) {
-    use bevy_renet2::client_connected;
+    use bevy_renet2::prelude::client_connected;
+    use bevy_renet2::steam::{SteamClientPlugin, SteamClientTransport, SteamTransportError};
     use demo_bevy::connection_config;
-    use renet2_steam::bevy::{SteamClientPlugin, SteamClientTransport, SteamTransportError};
     use steamworks::{SingleClient, SteamId};
 
     let (steam_client, single) = steamworks::Client::init_app(480).unwrap();
@@ -131,7 +128,7 @@ fn main() {
     app.add_plugins(LogDiagnosticsPlugin::default());
     app.add_plugins(EguiPlugin);
 
-    #[cfg(feature = "transport")]
+    #[cfg(feature = "netcode")]
     add_netcode_network(&mut app);
 
     #[cfg(feature = "steam")]
@@ -227,7 +224,7 @@ fn client_sync_players(
                     Transform::from_xyz(translation[0], translation[1], translation[2]),
                 ));
 
-                if client_id == id.raw() {
+                if client_id == id {
                     client_entity.insert(ControlledPlayer);
                 }
 

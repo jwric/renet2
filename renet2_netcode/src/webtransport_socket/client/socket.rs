@@ -16,7 +16,7 @@ use wasm_bindgen::{prelude::Closure, JsValue};
 use wasm_bindgen_futures::{spawn_local, JsFuture};
 use web_sys::{ReadableStreamDefaultReader, WritableStreamDefaultWriter};
 
-use crate::transport::{ClientSocket, NetcodeTransportError, ServerCertHash, WebServerDestination, HTTP_CONNECT_REQ};
+use crate::{ClientSocket, NetcodeTransportError, ServerCertHash, WebServerDestination, HTTP_CONNECT_REQ};
 
 use super::bindings::{
     ReadableStreamDefaultReadResult, WebTransport, WebTransportCongestionControl, WebTransportError, WebTransportHash, WebTransportOptions,

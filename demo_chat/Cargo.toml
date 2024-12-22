@@ -5,10 +5,9 @@ authors = ["koe <ukoe@protonmail.com>"]
 license = "MIT OR Apache-2.0"
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
-renet2 = { path = "../renet2", features = ["transport", "serde"] }
+renet2 = { path = "../renet2" }
+renet2_netcode = { path = "../renet2_netcode", features = ["native_transport", "serde"] }
 renet2_visualizer = { path = "../renet2_visualizer" }
 eframe = "0.29"
 serde = { version = "1.0", features = ["derive"] }

@@ -5,10 +5,8 @@ use std::{
     time::{Duration, Instant, SystemTime},
 };
 
-use renet2::{
-    transport::{ClientAuthentication, ClientSocket, NativeSocket, NetcodeClientTransport},
-    ConnectionConfig, DefaultChannel, RenetClient,
-};
+use renet2::{ConnectionConfig, DefaultChannel, RenetClient};
+use renet2_netcode::{ClientAuthentication, ClientSocket, NativeSocket, NetcodeClientTransport};
 
 fn main() {
     env_logger::init();

@@ -9,32 +9,39 @@ readme = "README.md"
 repository = "https://github.com/UkoeHB/renet2"
 
 [package.metadata.docs.rs]
-features = ["default", "serde", "native_transport", "memory_transport", "wt_server_transport"]
+features = ["default", "serde"]
 rustdoc-args = ["-Zunstable-options", "--cfg", "docsrs"]
 
 [features]
-default = ["transport"]
-serde = ["renet2/serde"]
-transport = ["renet2/transport"]
-native_transport = ["transport", "renet2/native_transport"]
-memory_transport = ["transport", "renet2/memory_transport"]
-wt_server_transport = ["transport", "renet2/wt_server_transport"]
-wt_client_transport = ["transport", "renet2/wt_client_transport"]
+default = ["netcode"]
+serde = ["renet2_netcode/serde"]
+steam = ["dep:renet2_steam", "dep:steamworks"]
+netcode = ["dep:renet2_netcode"]
+native_transport = ["netcode", "renet2_netcode/native_transport"]
+memory_transport = ["netcode", "renet2_netcode/memory_transport"]
+wt_server_transport = ["netcode", "renet2_netcode/wt_server_transport"]
+wt_client_transport = ["netcode", "renet2_netcode/wt_client_transport"]
+ws_server_transport = ["netcode", "renet2_netcode/ws_server_transport"]
+ws_client_transport = ["netcode", "renet2_netcode/ws_client_transport"]
 
 [[example]]
 name = "simple"
-required-features = ["serde", "transport"]
+required-features = ["serde", "netcode"]
 
 [dependencies]
 bevy_app = {version = "0.15", default-features = false}
 bevy_ecs = {version = "0.15", default-features = false}
 bevy_time = {version = "0.15", default-features = false}
 renet2 = {path = "../renet2", version = "0.0.7", default-features = false, features = ["bevy"]}
+renet2_netcode = {path = "../renet2_netcode", version = "0.0.7", optional = true, default-features = false, features = ["bevy"]}
+renet2_steam = {path = "../renet2_steam", version = "0.0.7", optional = true, default-features = false, features = ["bevy"]}
+steamworks = {version = "0.11", optional = true}
 
 [dev-dependencies]
 bevy = {version = "0.15", default-features = false, features = ["bevy_core_pipeline", "bevy_render", "bevy_asset", "bevy_pbr", "x11", "tonemapping_luts", "ktx2", "zstd"]}
 bincode = "1.3"
 env_logger = "0.11"
-renet2 = {path = "../renet2", version = "0.0.7", default-features = false, features = ["bevy", "memory_transport"]}
+renet2 = {path = "../renet2", version = "0.0.7", default-features = false, features = ["bevy"] }
+renet2_netcode = {path = "../renet2_netcode", version = "0.0.7", default-features = false, features = ["bevy", "memory_transport"]}
 serde = {version = "1.0", features = ["derive"]}
 tracing-subscriber = { version = "0.3", features = [ "env-filter", "std", "tracing-log" ] }

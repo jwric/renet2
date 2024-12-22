@@ -19,7 +19,7 @@ use anyhow::Error;
 use bytes::Bytes;
 use tokio::sync::mpsc;
 
-use crate::transport::{client_idx_from_addr, client_idx_to_addr, NetcodeTransportError, ServerSocket, HTTP_CONNECT_REQ};
+use crate::{client_idx_from_addr, client_idx_to_addr, NetcodeTransportError, ServerSocket, HTTP_CONNECT_REQ};
 
 /// Acceptor config for WebSocket connections.
 ///

@@ -58,9 +58,10 @@ For a full example of how to initialize a server or client see the example in th
 repository.
 */
 
-pub use bevy_renet2::renet2;
-#[cfg(feature = "transport")]
-pub use bevy_renet2::transport;
+pub use bevy_renet2::prelude as renet2;
+
+#[cfg(feature = "netcode")]
+pub use bevy_renet2::netcode;
 
 #[cfg(feature = "client")]
 pub mod client;
@@ -73,11 +74,8 @@ pub use client::*;
 pub use server::*;
 
 use bevy::{app::PluginGroupBuilder, prelude::*};
-use bevy_replicon::{
-    core::ClientId,
-    prelude::{ChannelKind, RepliconChannel, RepliconChannels},
-};
-use renet2::{ChannelConfig, SendType};
+use bevy_renet2::prelude::{ChannelConfig, SendType};
+use bevy_replicon::prelude::{ChannelKind, RepliconChannel, RepliconChannels};
 
 pub struct RepliconRenetPlugins;
 
@@ -138,25 +136,4 @@ fn create_configs(channels: &[RepliconChannel], default_max_bytes: usize) -> Vec
         });
     }
     channel_configs
-}
-
-/// External trait for [`ClientId`] to provide convenient conversion into [`renet2::ClientId`].
-pub trait Renet2ClientIdExt {
-    /// Returns renet's Client ID.
-    fn to_renet2(&self) -> renet2::ClientId;
-}
-impl Renet2ClientIdExt for ClientId {
-    fn to_renet2(&self) -> renet2::ClientId {
-        renet2::ClientId::from_raw(self.get())
-    }
-}
-/// External trait for [`renet2::ClientId`] to provide convenient conversion into [`ClientId`].
-pub trait ClientIdExt {
-    /// Returns replicon's Client ID.
-    fn to_replicon(&self) -> ClientId;
-}
-impl ClientIdExt for renet2::ClientId {
-    fn to_replicon(&self) -> ClientId {
-        ClientId::new(self.raw())
-    }
 }

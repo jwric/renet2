@@ -5,12 +5,10 @@ use std::{
 use warp::Filter;
 
 use log::{debug, info, trace};
-use renet2::{
-    transport::{
-        BoxedSocket, NativeSocket, NetcodeServerTransport, ServerCertHash, ServerSetupConfig, ServerSocket, WebServerDestination,
-        WebSocketServer, WebSocketServerConfig, WebTransportServer, WebTransportServerConfig,
-    },
-    ConnectionConfig, DefaultChannel, RenetServer, ServerEvent,
+use renet2::{ConnectionConfig, DefaultChannel, RenetServer, ServerEvent};
+use renet2_netcode::{
+    BoxedSocket, NativeSocket, NetcodeServerTransport, ServerCertHash, ServerSetupConfig, ServerSocket, WebServerDestination,
+    WebSocketServer, WebSocketServerConfig, WebTransportServer, WebTransportServerConfig,
 };
 use renetcode2::ServerAuthentication;
 

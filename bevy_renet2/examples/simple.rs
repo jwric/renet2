@@ -1,16 +1,11 @@
 use bevy::{prelude::*, render::mesh::PlaneMeshBuilder};
-use bevy_renet2::{
-    client_connected,
-    renet2::{
-        transport::{ClientAuthentication, ServerAuthentication, ServerSetupConfig},
-        ConnectionConfig, DefaultChannel, RenetClient, RenetServer, ServerEvent,
-    },
-    transport::{NetcodeClientPlugin, NetcodeServerPlugin},
-    RenetClientPlugin, RenetServerPlugin,
+use bevy_renet2::netcode::{
+    ClientAuthentication, NativeSocket, NetcodeClientPlugin, NetcodeClientTransport, NetcodeServerPlugin, NetcodeServerTransport,
+    NetcodeTransportError, ServerAuthentication, ServerSetupConfig,
 };
-use renet2::{
-    transport::{NativeSocket, NetcodeClientTransport, NetcodeServerTransport, NetcodeTransportError},
-    ClientId,
+use bevy_renet2::prelude::{
+    client_connected, ClientId, ConnectionConfig, DefaultChannel, RenetClient, RenetClientPlugin, RenetServer, RenetServerPlugin,
+    ServerEvent,
 };
 
 use std::time::SystemTime;

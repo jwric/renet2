@@ -5,7 +5,7 @@ use time::{ext::NumericalDuration, OffsetDateTime};
 
 use std::path::PathBuf;
 
-use crate::transport::{ServerCertHash, WebServerDestination};
+use crate::{ServerCertHash, WebServerDestination};
 
 /// Generates a self-signed certificate for use in `WebTransportConfig`.
 ///

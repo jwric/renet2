@@ -43,7 +43,7 @@ log = "0.4"
 tracing-subscriber = { version = "0.3", features = [ "env-filter", "std", "tracing-log" ] }
 
 [features]
-default = ["renet_serde", "transport", "client", "server"]
+default = ["renet_serde", "netcode", "client", "server"]
 
 # Re-exports of bevy_replicon features
 client = ["bevy_replicon/client"]
@@ -51,11 +51,13 @@ server = ["bevy_replicon/server"]
 
 # Re-exports of renet features
 renet_serde = ["bevy_renet2/serde"]
-transport = ["bevy_renet2/transport"]
-native_transport = ["transport", "bevy_renet2/native_transport"]
-memory_transport = ["transport", "bevy_renet2/memory_transport"]
-wt_server_transport = ["transport", "bevy_renet2/wt_server_transport"]
-wt_client_transport = ["transport", "bevy_renet2/wt_client_transport"]
+netcode = ["bevy_renet2/netcode"]
+native_transport = ["netcode", "bevy_renet2/native_transport"]
+memory_transport = ["netcode", "bevy_renet2/memory_transport"]
+wt_server_transport = ["netcode", "bevy_renet2/wt_server_transport"]
+wt_client_transport = ["netcode", "bevy_renet2/wt_client_transport"]
+ws_server_transport = ["netcode", "bevy_renet2/ws_server_transport"]
+ws_client_transport = ["netcode", "bevy_renet2/ws_client_transport"]
 
 [[test]]
 name = "transport"

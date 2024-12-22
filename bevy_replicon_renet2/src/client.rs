@@ -1,10 +1,7 @@
-#[cfg(feature = "transport")]
-use crate::renet2::transport::NetcodeClientTransport;
-#[cfg(feature = "transport")]
-use crate::transport::NetcodeClientPlugin;
-use crate::{renet2::RenetClient, ClientIdExt};
+#[cfg(feature = "netcode")]
+use crate::netcode::{NetcodeClientPlugin, NetcodeClientTransport};
+use crate::renet2::{RenetClient, RenetClientPlugin, RenetReceive, RenetSend};
 use bevy::prelude::*;
-use bevy_renet2::{RenetClientPlugin, RenetReceive, RenetSend};
 use bevy_replicon::prelude::*;
 
 pub struct RepliconRenetClientPlugin;
@@ -17,10 +14,10 @@ impl Plugin for RepliconRenetClientPlugin {
             .add_systems(
                 PreUpdate,
                 (
-                    Self::set_connecting.run_if(bevy_renet2::client_connecting),
-                    Self::set_disconnected.run_if(bevy_renet2::client_just_disconnected),
-                    Self::set_connected.run_if(bevy_renet2::client_just_connected),
-                    Self::receive_packets.run_if(bevy_renet2::client_connected),
+                    Self::set_connecting.run_if(crate::renet2::client_connecting),
+                    Self::set_disconnected.run_if(crate::renet2::client_just_disconnected),
+                    Self::set_connected.run_if(crate::renet2::client_just_connected),
+                    Self::receive_packets.run_if(crate::renet2::client_connected),
                 )
                     .chain()
                     .in_set(ClientSet::ReceivePackets),
@@ -29,10 +26,10 @@ impl Plugin for RepliconRenetClientPlugin {
                 PostUpdate,
                 Self::send_packets
                     .in_set(ClientSet::SendPackets)
-                    .run_if(bevy_renet2::client_connected),
+                    .run_if(crate::renet2::client_connected),
             );
 
-        #[cfg(feature = "transport")]
+        #[cfg(feature = "netcode")]
         app.add_plugins(NetcodeClientPlugin);
     }
 }
@@ -48,12 +45,12 @@ impl RepliconRenetClientPlugin {
         }
     }
 
-    fn set_connected(mut client: ResMut<RepliconClient>, #[cfg(feature = "transport")] transport: Res<NetcodeClientTransport>) {
+    fn set_connected(mut client: ResMut<RepliconClient>, #[cfg(feature = "netcode")] transport: Res<NetcodeClientTransport>) {
         // In renet only transport knows the ID.
         // TODO: Pending renet issue https://github.com/lucaspoffo/renet/issues/153
-        #[cfg(feature = "transport")]
-        let client_id = Some(transport.client_id().to_replicon());
-        #[cfg(not(feature = "transport"))]
+        #[cfg(feature = "netcode")]
+        let client_id = Some(ClientId::new(transport.client_id()));
+        #[cfg(not(feature = "netcode"))]
         let client_id = None;
 
         client.set_status(RepliconClientStatus::Connected { client_id });

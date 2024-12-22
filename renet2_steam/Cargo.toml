@@ -13,16 +13,14 @@ all-features = true
 rustdoc-args = ["-Zunstable-options", "--cfg", "docsrs"]
 
 [features]
-bevy = ["dep:bevy_app", "dep:bevy_ecs", "dep:bevy_renet2"]
+# Enable bevy integration
+bevy = ["dep:bevy_ecs"]
 
 [dependencies]
 renet2 = { version = "0.0.7", path = "../renet2" }
-# its version 0.10 but we need to use the rev because of a missing feature
 steamworks = "0.11"
 log = "0.4.19"
 bevy_ecs = { version = "0.15", optional = true }
-bevy_app = { version = "0.15", optional = true }
-bevy_renet2 = { version = "0.0.7", optional = true, path = "../bevy_renet2" }
 
 [dev-dependencies]
 env_logger = "0.11"

@@ -5,10 +5,7 @@ use bevy::{
     prelude::*,
 };
 use bevy_egui::{EguiContexts, EguiPlugin};
-use bevy_renet2::{
-    renet2::{ClientId, RenetServer, ServerEvent},
-    RenetServerPlugin,
-};
+use bevy_renet2::prelude::*;
 use demo_bevy::{
     setup_level, spawn_fireball, ClientChannel, NetworkedEntities, Player, PlayerCommand, PlayerInput, Projectile, ServerChannel,
     ServerMessages, Velocity,
@@ -30,10 +27,9 @@ struct Bot {
 #[derive(Debug, Resource)]
 struct BotId(u64);
 
-#[cfg(feature = "transport")]
+#[cfg(feature = "netcode")]
 fn add_netcode_network(app: &mut App) {
-    use bevy_renet2::renet2::transport::{NativeSocket, NetcodeServerTransport, ServerAuthentication, ServerSetupConfig};
-    use bevy_renet2::transport::NetcodeServerPlugin;
+    use bevy_renet2::netcode::{NativeSocket, NetcodeServerPlugin, NetcodeServerTransport, ServerAuthentication, ServerSetupConfig};
     use demo_bevy::{connection_config, PROTOCOL_ID};
     use std::{net::UdpSocket, time::SystemTime};
 
@@ -59,9 +55,8 @@ fn add_netcode_network(app: &mut App) {
 
 #[cfg(feature = "steam")]
 fn add_steam_network(app: &mut App) {
+    use bevy_renet2::steam::{AccessPermission, SteamServerConfig, SteamServerPlugin, SteamServerTransport};
     use demo_bevy::connection_config;
-    use renet2_steam::bevy::{SteamServerConfig, SteamServerPlugin, SteamServerTransport};
-    use renet2_steam::AccessPermission;
     use steamworks::SingleClient;
 
     let (steam_client, single) = steamworks::Client::init_app(480).unwrap();
@@ -100,7 +95,7 @@ fn main() {
 
     app.insert_resource(RenetServerVisualizer::<200>::default());
 
-    #[cfg(feature = "transport")]
+    #[cfg(feature = "netcode")]
     add_netcode_network(&mut app);
 
     #[cfg(feature = "steam")]
@@ -299,7 +294,7 @@ fn spawn_bot(
     mut commands: Commands,
 ) {
     if keyboard_input.just_pressed(KeyCode::Space) {
-        let client_id = ClientId::from_raw(bot_id.0);
+        let client_id = bot_id.0;
         bot_id.0 += 1;
         // Spawn new player
         let transform = Transform::from_xyz((fastrand::f32() - 0.5) * 40., 0.51, (fastrand::f32() - 0.5) * 40.);

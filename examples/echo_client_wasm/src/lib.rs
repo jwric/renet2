@@ -1,8 +1,6 @@
-use renet2::{
-    transport::{
-        webtransport_is_available_with_cert_hashes, ClientSocket, CongestionControl, NetcodeClientTransport, ServerCertHash, WebServerDestination, WebSocketClient, WebSocketClientConfig, WebTransportClient, WebTransportClientConfig
-    },
-    ConnectionConfig, DefaultChannel, RenetClient,
+use renet2::{ConnectionConfig, DefaultChannel, RenetClient};
+use renet2_netcode::{
+    webtransport_is_available_with_cert_hashes, ClientSocket, CongestionControl, NetcodeClientTransport, ServerCertHash, WebServerDestination, WebSocketClient, WebSocketClientConfig, WebTransportClient, WebTransportClientConfig
 };
 use renetcode2::ClientAuthentication;
 use std::time::Duration;

@@ -1,17 +1,11 @@
 use std::time::SystemTime;
 
 use bevy::prelude::*;
-use bevy_renet2::{
-    transport::{NetcodeClientPlugin, NetcodeServerPlugin},
-    RenetClientPlugin, RenetServerPlugin,
+use bevy_renet2::netcode::{
+    in_memory_server_addr, new_memory_sockets, ClientAuthentication, MemorySocketClient, NetcodeClientPlugin, NetcodeClientTransport,
+    NetcodeServerPlugin, NetcodeServerTransport, ServerAuthentication, ServerSetupConfig,
 };
-use renet2::{
-    transport::{
-        in_memory_server_addr, new_memory_sockets, ClientAuthentication, MemorySocketClient, NetcodeClientTransport,
-        NetcodeServerTransport, ServerAuthentication, ServerSetupConfig,
-    },
-    ClientId, ConnectionConfig, DefaultChannel, RenetClient, RenetServer,
-};
+use bevy_renet2::prelude::{ConnectionConfig, DefaultChannel, RenetClient, RenetClientPlugin, RenetServer, RenetServerPlugin};
 
 #[derive(Debug, Default, Resource, PartialEq, Eq, Deref, DerefMut)]
 pub struct ServerReceived(Vec<(u64, Vec<u8>)>);
@@ -74,7 +68,7 @@ fn create_server_app(num_clients: usize) -> (App, Vec<MemorySocketClient>) {
         .add_systems(Update, |mut server: ResMut<RenetServer>, mut received: ResMut<ServerReceived>| {
             for client_id in server.clients_id() {
                 while let Some(packet) = server.receive_message(client_id, DefaultChannel::ReliableOrdered) {
-                    received.push((client_id.raw(), packet.to_vec()));
+                    received.push((client_id, packet.to_vec()));
                 }
             }
         });
@@ -281,7 +275,7 @@ fn disconnect_client() {
     let mut client = clients.pop().unwrap();
 
     server.update();
-    assert_eq!(server.world().resource::<RenetServer>().clients_id(), vec![ClientId::from_raw(1)]);
+    assert_eq!(server.world().resource::<RenetServer>().clients_id(), vec![1]);
     assert!(client.world().resource::<NetcodeClientTransport>().is_connected());
 
     client.world_mut().send_event(AppExit::Success);
@@ -301,7 +295,7 @@ fn disconnect_server() {
     let (mut server, mut clients) = create_and_connect_apps(1);
     let mut client = clients.pop().unwrap();
 
-    assert_eq!(server.world().resource::<RenetServer>().clients_id(), [ClientId::from_raw(1)]);
+    assert_eq!(server.world().resource::<RenetServer>().clients_id(), [1]);
     assert!(client.world().resource::<NetcodeClientTransport>().is_connected());
 
     server.world_mut().send_event(AppExit::Success);
