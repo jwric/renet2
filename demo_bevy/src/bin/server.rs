@@ -108,7 +108,7 @@ fn main() {
             server_network_sync,
             move_players_system,
             update_projectiles_system,
-            update_visulizer_system,
+            update_visualizer_system,
             spawn_bot,
             bot_autocast,
         ),
@@ -234,7 +234,7 @@ fn update_projectiles_system(mut commands: Commands, mut projectiles: Query<(Ent
     }
 }
 
-fn update_visulizer_system(mut egui_contexts: EguiContexts, mut visualizer: ResMut<RenetServerVisualizer<200>>, server: Res<RenetServer>) {
+fn update_visualizer_system(mut egui_contexts: EguiContexts, mut visualizer: ResMut<RenetServerVisualizer<200>>, server: Res<RenetServer>) {
     visualizer.update(&server);
     visualizer.show_window(egui_contexts.ctx_mut());
 }

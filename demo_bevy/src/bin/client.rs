@@ -149,12 +149,12 @@ fn main() {
     app.insert_resource(RenetClientVisualizer::<200>::new(RenetVisualizerStyle::default()));
 
     app.add_systems(Startup, (setup_level, setup_camera, setup_target));
-    app.add_systems(Update, update_visulizer_system);
+    app.add_systems(Update, update_visualizer_system);
 
     app.run();
 }
 
-fn update_visulizer_system(
+fn update_visualizer_system(
     mut egui_contexts: EguiContexts,
     mut visualizer: ResMut<RenetClientVisualizer<200>>,
     client: Res<RenetClient>,
