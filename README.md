@@ -18,7 +18,7 @@ Provides the following features:
 - Authentication and encryption, using [renetcode2](https://github.com/UkoeHB/renet2/tree/master/renetcode2)
     - The transport layer can be customizable. The default transport can be disabled and replaced with a custom one.
     - The underlying data transport/socket can be customized. Both unencrypted (e.g. UDP) and encrypted (e.g. WebTransport) data transports are supported.
-- Built-in UDP sockets, in-memory sockets, and WebTransport sockets for flexible, cross-platform networking using the `netcode` protocol.
+- Built-in UDP sockets, in-memory sockets, WebTransport sockets, and WebSocket sockets for flexible, cross-platform networking using the `netcode` protocol.
 
 
 ## Differences from `renet`
@@ -34,7 +34,7 @@ See `renetcode2/NETCODE_EXTENSIONS.md`.
 
 ### Features
 
-- Includes built-in data transports: `UdpSockets`, memory channels, WebTransport.
+- Includes built-in data transports: UDP, memory channels, WebTransport, WebSockets.
 
 
 ## Building docs
@@ -47,7 +47,7 @@ cargo doc --open --no-deps --all-features
 Build WASM docs (`renet2` workspace crate only):
 ```
 cd renet2 &&\
-cargo doc --open --no-deps --no-default-features --features=wt_client_transport,transport --target wasm32-unknown-unknown
+cargo doc --open --no-deps --no-default-features --features=wt_client_transport,ws_client_transport,transport --target wasm32-unknown-unknown
 ```
 
 
@@ -150,7 +150,7 @@ loop {
 ### Client
 
 ```rust
-let mut client = RenetClient::new(ConnectionConfig::default());
+let mut client = RenetClient::new(ConnectionConfig::default(), false);
 
 // Setup transport layer
 const server_addr: SocketAddr = "127.0.0.1:5000".parse().unwrap();
