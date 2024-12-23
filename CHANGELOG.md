@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## WIP
+## 0.1.0 - 12/23/24
 
 - Update `renet2` sub-crate dependencies.
     - `rustls`: 0.21 -> 0.23.5

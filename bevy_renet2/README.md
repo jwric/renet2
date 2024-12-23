@@ -124,5 +124,5 @@ If you want a more complex example you can checkout the [demo_bevy](https://gith
 ## Bevy Compatibility
 
 |bevy|bevy_renet2|
-|---|---|
-|0.15|0.0.7|
+|----|-----------|
+|0.15|0.0.7 - 0.1.0|
