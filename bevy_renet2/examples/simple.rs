@@ -15,7 +15,7 @@ use serde::{Deserialize, Serialize};
 
 const PROTOCOL_ID: u64 = 7;
 
-const PLAYER_MOVE_SPEED: f32 = 1.0;
+const PLAYER_MOVE_SPEED: f32 = 5.0;
 
 #[derive(Debug, Default, Serialize, Deserialize, Component, Resource)]
 struct PlayerInput {
@@ -276,8 +276,9 @@ fn move_players_system(mut query: Query<(&mut Transform, &PlayerInput)>, time: R
     for (mut transform, input) in query.iter_mut() {
         let x = (input.right as i8 - input.left as i8) as f32;
         let y = (input.down as i8 - input.up as i8) as f32;
-        transform.translation.x += x * PLAYER_MOVE_SPEED * time.delta().as_secs_f32();
-        transform.translation.z += y * PLAYER_MOVE_SPEED * time.delta().as_secs_f32();
+        let adjustment = if x != 0. && y != 0. { 0.7 } else { 1.0 };
+        transform.translation.x += x * PLAYER_MOVE_SPEED * adjustment * time.delta().as_secs_f32();
+        transform.translation.z += y * PLAYER_MOVE_SPEED * adjustment * time.delta().as_secs_f32();
     }
 }
 
