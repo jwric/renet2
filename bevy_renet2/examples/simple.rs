@@ -246,7 +246,7 @@ fn setup(mut commands: Commands, mut meshes: ResMut<Assets<Mesh>>, mut materials
     // light
     commands.spawn((
         PointLight {
-            intensity: 1500.0,
+            intensity: 300000.0,
             shadows_enabled: true,
             ..Default::default()
         },

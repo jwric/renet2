@@ -1,5 +1,5 @@
 //! A game to showcase single-player and multiplier game.
-//! Run it with `--hotseat` to play locally or with `--client` / `--server`
+//! Run it with `cargo run --example tic_tac_toe -- hotseat` to play locally or with `-- client` / `-- server`
 
 use std::{
     error::Error,
@@ -193,7 +193,7 @@ impl TicTacToePlugin {
                                         BottomText,
                                     ))
                                     .with_child((
-                                        Text::default(),
+                                        TextSpan::default(),
                                         TextFont {
                                             font: symbol_font.0.clone(),
                                             font_size: FONT_SIZE,
