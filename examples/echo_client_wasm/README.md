@@ -12,4 +12,4 @@ wasm-pack build \
 && npm run start
 ```
 
-The app will only work on browsers [that support](https://caniuse.com/mdn-api_webtransport_webtransport_options_servercertificatehashes_parameter) self-signed certificates. Major browsers with support (as of April 8, 2024): Chrome, Edge, Opera.
+The app will fall back to websockets for browsers that don't [support](https://caniuse.com/mdn-api_webtransport_webtransport_options_servercertificatehashes_parameter) self-signed webtransport certificates. Note that Firefox `v133.0.*` will not work due to a Firefox webtransport bug (which is undetectable, so we can't fall back to websockets properly).
