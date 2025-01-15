@@ -162,6 +162,8 @@ features = [
     "Event",
     "ErrorEvent",
     "BinaryType",
+    "Window",
+    "Navigator"
 ]
 
 [dev-dependencies]

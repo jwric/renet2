@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 0.1.1 - 01/15/25
+
+- Fix `webtransport_is_available_with_cert_hashes()` to detect if in a buggy Firefox version. See https://phabricator.services.mozilla.com/D231479
+
 ## 0.1.0 - 12/23/24
 
 - Update `renet2` sub-crate dependencies.
