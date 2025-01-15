@@ -138,7 +138,7 @@ impl NetcodeServerTransport {
     /// Disconnects all connected clients.
     ///
     /// This sends the disconnect packet instantly, use this when closing/exiting games,
-    /// should use [RenetServer::disconnect_all][crate::RenetServer::disconnect_all] otherwise.
+    /// should use [RenetServer::disconnect_all] otherwise.
     pub fn disconnect_all(&mut self, server: &mut RenetServer) {
         for client_id in self.netcode_server.clients_id() {
             let server_result = self.netcode_server.disconnect(client_id);

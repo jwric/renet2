@@ -8,7 +8,7 @@ use super::NetcodeTransportError;
 /// Note that while `netcode` uses `SocketAddr` everywhere, if your transport uses a different 'connection URL'
 /// scheme then you can layer the bytes into the [`ConnectToken`](renetcode2::ConnectToken) server address list.
 /// Just keep in mind that when a client disconnects, the client will traverse the server address list to find
-/// an address to reconnect with. If that isn't supported by your scheme, then when [`TransportSocket::send`] is
+/// an address to reconnect with. If that isn't supported by your scheme, then when [`ServerSocket::send`] is
 /// called with an invalid/unexpected server address you should return an error. If you want to support
 /// multiple server addresses but your URLs exceed 16 bytes (IPV6 addresses are 16 bytes), then you should pre-parse
 /// the server list from the connect token, and then map that list to the 16-byte IPV6 segments that will be produced
@@ -21,8 +21,8 @@ pub trait ServerSocket: Debug + Send + Sync + 'static {
     fn is_encrypted(&self) -> bool;
     /// Gets the reliability of the socket.
     ///
-    /// If this is true, then `RenetServer` will 'downgrade' all channels to
-    /// [`crate::channel::SendType::Unreliable`] so there is not a redundant reliability layer.
+    /// If this is true, then [`RenetServer`](renet2::RenetServer) will 'downgrade' all channels to
+    /// [`SendType::Unreliable`](renet2::SendType::Unreliable) so there is not a redundant reliability layer.
     fn is_reliable(&self) -> bool;
 
     /// Gets the data source's `SocketAddr`.
@@ -79,11 +79,15 @@ pub trait ClientSocket: Debug + Send + Sync + 'static {
     ///
     /// If the socket internally encrypts packets before sending them, then this should return `true`.
     /// In that case, `renetcode` will not pre-encrypt packets before [`Self::send`] is called.
+    /// 
+    /// Should match the encryption policy of the server socket you will connect to.
     fn is_encrypted(&self) -> bool;
     /// Gets the reliability of the socket.
     ///
-    /// If this is true, then `RenetServer` will 'downgrade' all channels to
-    /// [`crate::channel::SendType::Unreliable`] so there is not a redundant reliability layer.
+    /// If this is true, then [`RenetClient`](renet2::RenetClient) will 'downgrade' all channels to
+    /// [`SendType::Unreliable`](renet2::SendType::Unreliable) so there is not a redundant reliability layer.
+    /// 
+    /// Should match the reliability of the server socket you will connect to.
     fn is_reliable(&self) -> bool;
 
     /// Gets the data source's `SocketAddr`.

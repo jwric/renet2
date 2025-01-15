@@ -7,7 +7,7 @@ An integration of `bevy_renet2` as a messaging backend for [`bevy_replicon`](htt
 
 | bevy_replicon_renet2 | bevy_renet2 | bevy_replicon | bevy   |
 | -------------------- | ----------- | ------------- | ------ |
-| 0.1.0                | 0.1.0       | 0.29          | 0.15.0 |
+| 0.1                  | 0.1         | 0.29          | 0.15.0 |
 | 0.0.9                | 0.0.7       | 0.29          | 0.15.0 |
 | 0.0.5                | 0.0.4       | 0.26          | 0.14.0 |
 | 0.0.4                | 0.0.3       | 0.26          | 0.14.0 |

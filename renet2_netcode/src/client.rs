@@ -68,7 +68,7 @@ impl NetcodeClientTransport {
     /// Disconnects the client from the transport layer.
     ///
     /// This sends the disconnect packet instantly, use this when closing/exiting games,
-    /// should use [RenetClient::disconnect][crate::RenetClient::disconnect] otherwise.
+    /// should use [RenetClient::disconnect] otherwise.
     pub fn disconnect(&mut self) {
         if self.netcode_client.is_disconnected() {
             return;

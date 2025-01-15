@@ -9,7 +9,7 @@ use crate::{ServerCertHash, WebServerDestination};
 
 /// Generates a self-signed certificate for use in `WebTransportConfig`.
 ///
-/// The [`PrivateKey`] should not be publicized.
+/// The [`PrivateKeyDer`] should not be publicized.
 pub fn generate_self_signed_certificate(
     params: CertificateParams,
 ) -> Result<(CertificateDer<'static>, PrivateKeyDer<'static>), rcgen::Error> {
@@ -27,7 +27,7 @@ pub fn generate_self_signed_certificate(
 /// - The validity period is set to 2 weeks from now to support [`ServerCertHash`].
 /// - ECDSA is used, not RSA.
 ///
-/// The [`PrivateKey`] should not be publicized.
+/// The [`PrivateKeyDer`] should not be publicized.
 pub fn generate_self_signed_certificate_opinionated<T: Into<WebServerDestination>>(
     subject_alt_names: impl IntoIterator<Item = T>,
 ) -> Result<(CertificateDer<'static>, PrivateKeyDer<'static>), rcgen::Error> {
@@ -93,7 +93,7 @@ fn _spki_fingerprint_base64(cert: &Certificate) -> Option<String> {
 }
 */
 
-/// Gets a [`ServerCertHash`] from a [`Certificate`].
+/// Gets a [`ServerCertHash`] from a [`CertificateDer`].
 pub fn get_server_cert_hash(cert: &CertificateDer<'_>) -> ServerCertHash {
     let hash = hmac_sha256::Hash::hash(cert.as_ref());
     ServerCertHash { hash }

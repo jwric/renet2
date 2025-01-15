@@ -2,7 +2,7 @@ use std::net::{SocketAddr, UdpSocket};
 
 use super::{ClientSocket, NetcodeError, NetcodeTransportError, ServerSocket};
 
-/// Implementation of [`TransportSocket`] for `UdpSockets`.
+/// Implementation of [`ServerSocket`] for `UdpSockets`.
 #[derive(Debug)]
 pub struct NativeSocket {
     socket: UdpSocket,

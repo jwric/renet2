@@ -44,7 +44,6 @@ pub struct WebSocketServerConfig {
     /// Socket address to listen on.
     ///
     /// It is recommended to use a pre-defined IP and a wildcard port.
-    /// The pre-defined IP should be used when obtaining [`Self::cert`] from your certificate authority (CA).
     ///
     /// Using a wildcard port will reduce your chance of competing with other sockets on your machine (e.g. other
     /// WebTransport servers running different game instances).

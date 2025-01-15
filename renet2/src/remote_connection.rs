@@ -148,7 +148,7 @@ impl RenetClient {
     ///
     /// It will be false for sockets like UDP or WebTransport, and true for in-memory sockets and WebSockets.
     ///
-    /// See [`TransportSocket::is_reliable`].
+    /// See `ClientSocket::is_reliable` in `renet2_netcode`.
     pub fn new(mut config: ConnectionConfig, has_reliable_socket: bool) -> Self {
         if has_reliable_socket {
             config.downgrade_to_unreliable();

@@ -54,7 +54,7 @@ pub struct WebTransportServerConfig {
 }
 
 impl WebTransportServerConfig {
-    /// Makes a new config with a self-signed [`Certificate`] tied to the `listen` address.
+    /// Makes a new config with a self-signed [`CertificateDer`] tied to the `listen` address.
     ///
     /// Returns the [`ServerCertHash`] of the certificate, which can be used to set up clients via
     /// `WebTransportClientConfig`.
@@ -66,7 +66,7 @@ impl WebTransportServerConfig {
         Self::new_selfsigned_with_proxies(listen, vec![listen.into()], max_clients)
     }
 
-    /// Makes a new config with a self-signed [`Certificate`] tied to the `proxies` destinations.
+    /// Makes a new config with a self-signed [`CertificateDer`] tied to the `proxies` destinations.
     ///
     /// Returns the [`ServerCertHash`] of the certificate, which can be used to set up clients via
     /// `WebTransportClientConfig`.
